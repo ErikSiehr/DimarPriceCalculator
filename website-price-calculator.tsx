@@ -11,12 +11,37 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
+
+// Theme Colors
+const theme = {
+  brandPrimary: "#013c66",
+  brandSecondary: "#001731",
+  brandAccent: "#00f0ff",
+  brandAccentWhiteBG: "#002c43",
+  link: "#0071ff",
+  linkHover: "#4c9bfe",
+  button: "#1bad9a",
+  buttonHover: "#21d5bd",
+  videoBG: "#bbb",
+  imageBG: "#333",
+  gradientDark: {
+    start: "#004371",
+    end: "#021934",
+  },
+  // Additional colors for better UX
+  white: "#ffffff",
+  lightGray: "#f8fafc",
+  mediumGray: "#e2e8f0",
+  darkGray: "#64748b",
+  success: "#10b981",
+  warning: "#f59e0b",
+  error: "#ef4444",
+}
 
 // Styled Components
 const Container = styled.div`
   min-height: 100vh;
-  background-color: #f4f7e8;
+  background: linear-gradient(135deg, ${theme.gradientDark.start} 0%, ${theme.gradientDark.end} 100%);
 `
 
 const MainWrapper = styled.div`
@@ -35,10 +60,10 @@ const HeaderCard = styled.div`
   justify-content: space-between;
   margin-bottom: 2rem;
   padding: 1.5rem;
-  background: white;
+  background: ${theme.white};
   border-radius: 1rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  border: 2px solid rgba(45, 90, 61, 0.1);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 2px solid ${theme.brandAccent}20;
 `
 
 const LogoContainer = styled.div`
@@ -50,16 +75,18 @@ const LogoContainer = styled.div`
 const LogoIcon = styled.div`
   width: 3rem;
   height: 3rem;
-  background-color: #2d5a3d;
+  background: linear-gradient(135deg, ${theme.brandPrimary} 0%, ${theme.brandSecondary} 100%);
   border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 6px -1px rgba(1, 60, 102, 0.3);
   
   span {
-    color: white;
+    color: ${theme.brandAccent};
     font-weight: bold;
     font-size: 1.25rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   }
 `
 
@@ -70,13 +97,16 @@ const LogoText = styled.div`
   .brand {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #2d5a3d;
+    background: linear-gradient(135deg, ${theme.brandPrimary} 0%, ${theme.brandAccentWhiteBG} 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     letter-spacing: -0.025em;
   }
   
   .tagline {
     font-size: 0.75rem;
-    color: #5a6b4a;
+    color: ${theme.darkGray};
     text-transform: uppercase;
     letter-spacing: 0.1em;
   }
@@ -87,14 +117,14 @@ const ContactInfo = styled.div`
   
   .label {
     font-size: 0.875rem;
-    color: #5a6b4a;
+    color: ${theme.darkGray};
     margin-bottom: 0.25rem;
   }
   
   .phone {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #2d5a3d;
+    color: ${theme.brandPrimary};
   }
 `
 
@@ -104,21 +134,27 @@ const TitleSection = styled.div`
   h1 {
     font-size: 3rem;
     font-weight: bold;
-    color: #2d5a3d;
+    background: linear-gradient(135deg, ${theme.brandAccent} 0%, ${theme.link} 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin-bottom: 1rem;
+    text-shadow: 0 2px 4px rgba(0, 240, 255, 0.1);
   }
   
   p {
     font-size: 1.25rem;
-    color: #5a6b4a;
+    color: ${theme.white};
+    opacity: 0.9;
   }
 `
 
 const MainCard = styled.div`
-  border: 2px solid rgba(45, 90, 61, 0.2);
+  border: 2px solid ${theme.brandAccent}30;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  border-radius: 0.5rem;
-  background: white;
+  border-radius: 1rem;
+  background: ${theme.white};
+  backdrop-filter: blur(10px);
 `
 
 const CardContentWrapper = styled.div`
@@ -138,18 +174,23 @@ const ProgressHeader = styled.div`
   .title {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #2d5a3d;
+    color: ${theme.brandPrimary};
   }
   
   .step-info {
     font-size: 1.125rem;
-    color: #5a6b4a;
+    color: ${theme.darkGray};
   }
 `
 
 const ProgressBarWrapper = styled.div`
   margin-bottom: 1.5rem;
   height: 0.75rem;
+  
+  .progress-bar {
+    background: linear-gradient(90deg, ${theme.brandAccent} 0%, ${theme.link} 100%);
+    border-radius: 0.375rem;
+  }
 `
 
 const StepNavigation = styled.div`
@@ -186,17 +227,17 @@ const StepButton = styled.button<{
   justify-content: center;
   font-size: 0.875rem;
   font-weight: 600;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   cursor: ${(props) => (props.$isDisabled ? "not-allowed" : "pointer")};
   opacity: ${(props) => (props.$isDisabled ? 0.5 : 1)};
   
   ${(props) =>
     props.$isActive &&
     `
-    background-color: #2d5a3d;
-    color: white;
-    border-color: #2d5a3d;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, ${theme.brandAccent} 0%, ${theme.link} 100%);
+    color: ${theme.brandSecondary};
+    border-color: ${theme.brandAccent};
+    box-shadow: 0 8px 16px -4px rgba(0, 240, 255, 0.4);
     transform: scale(1.1);
   `}
   
@@ -204,12 +245,14 @@ const StepButton = styled.button<{
     props.$isCompleted &&
     !props.$isActive &&
     `
-    background-color: rgba(45, 90, 61, 0.1);
-    color: #2d5a3d;
-    border-color: rgba(45, 90, 61, 0.3);
+    background: linear-gradient(135deg, ${theme.button} 0%, ${theme.buttonHover} 100%);
+    color: ${theme.white};
+    border-color: ${theme.button};
+    box-shadow: 0 4px 8px -2px rgba(27, 173, 154, 0.3);
     
     &:hover {
-      background-color: rgba(45, 90, 61, 0.2);
+      transform: scale(1.05);
+      box-shadow: 0 6px 12px -2px rgba(27, 173, 154, 0.4);
     }
   `}
   
@@ -217,12 +260,13 @@ const StepButton = styled.button<{
     !props.$isCompleted &&
     !props.$isActive &&
     `
-    background-color: #e8f0dc;
-    color: #5a6b4a;
-    border-color: rgba(90, 107, 74, 0.3);
+    background: ${theme.lightGray};
+    color: ${theme.darkGray};
+    border-color: ${theme.mediumGray};
     
     &:hover {
-      background-color: rgba(232, 240, 220, 0.8);
+      background: ${theme.mediumGray};
+      transform: scale(1.02);
     }
   `}
 `
@@ -236,7 +280,7 @@ const StepLabel = styled.span<{ $isActive: boolean; $isCompleted: boolean }>`
   ${(props) =>
     props.$isActive &&
     `
-    color: #2d5a3d;
+    color: ${theme.brandPrimary};
     font-weight: 600;
   `}
   
@@ -244,14 +288,15 @@ const StepLabel = styled.span<{ $isActive: boolean; $isCompleted: boolean }>`
     props.$isCompleted &&
     !props.$isActive &&
     `
-    color: #2d5a3d;
+    color: ${theme.button};
+    font-weight: 500;
   `}
   
   ${(props) =>
     !props.$isCompleted &&
     !props.$isActive &&
     `
-    color: #5a6b4a;
+    color: ${theme.darkGray};
   `}
 `
 
@@ -267,13 +312,16 @@ const QuestionTitle = styled.h2`
   font-size: 2.25rem;
   font-weight: bold;
   margin-bottom: 1rem;
-  color: #2d5a3d;
+  background: linear-gradient(135deg, ${theme.brandPrimary} 0%, ${theme.brandAccentWhiteBG} 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   text-align: center;
 `
 
 const QuestionDescription = styled.p`
   font-size: 1.125rem;
-  color: #5a6b4a;
+  color: ${theme.darkGray};
   text-align: center;
 `
 
@@ -294,12 +342,15 @@ const OptionCard = styled.div`
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  border: 2px solid #e8f0dc;
+  border: 2px solid ${theme.mediumGray};
   border-radius: 0.75rem;
-  transition: border-color 0.2s ease;
+  transition: all 0.3s ease;
+  background: ${theme.white};
   
   &:hover {
-    border-color: rgba(45, 90, 61, 0.3);
+    border-color: ${theme.brandAccent};
+    box-shadow: 0 4px 12px -2px rgba(0, 240, 255, 0.15);
+    transform: translateY(-1px);
   }
 `
 
@@ -315,26 +366,61 @@ const OptionContent = styled.div`
     font-weight: 500;
     cursor: pointer;
     display: block;
+    color: ${theme.brandPrimary};
   }
   
   .description {
     font-size: 0.875rem;
-    color: #5a6b4a;
+    color: ${theme.darkGray};
     margin-top: 0.25rem;
   }
 `
 
+const StyledBadge = styled.div<{ variant?: "default" | "success" | "accent" }>`
+  display: inline-flex;
+  align-items: center;
+  border-radius: 0.375rem;
+  border: 1px solid;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  
+  ${(props) => {
+    switch (props.variant) {
+      case "success":
+        return `
+          background: ${theme.success}15;
+          color: ${theme.success};
+          border-color: ${theme.success}30;
+        `
+      case "accent":
+        return `
+          background: ${theme.brandAccent}15;
+          color: ${theme.brandAccentWhiteBG};
+          border-color: ${theme.brandAccent}30;
+        `
+      default:
+        return `
+          background: ${theme.lightGray};
+          color: ${theme.darkGray};
+          border-color: ${theme.mediumGray};
+        `
+    }
+  }}
+`
+
 const PriceOverviewCard = styled.div`
-  border: 2px solid rgba(45, 90, 61, 0.2);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  border-radius: 0.5rem;
-  background: white;
+  border: 2px solid ${theme.brandAccent}30;
+  box-shadow: 0 10px 25px -5px rgba(0, 240, 255, 0.1);
+  border-radius: 1rem;
+  background: ${theme.white};
+  overflow: hidden;
 `
 
 const PriceHeader = styled.div`
-  background-color: rgba(45, 90, 61, 0.05);
+  background: linear-gradient(135deg, ${theme.brandPrimary} 0%, ${theme.brandSecondary} 100%);
   padding: 1.5rem;
-  border-bottom: 1px solid rgba(45, 90, 61, 0.1);
+  color: ${theme.white};
 `
 
 const PriceTitle = styled.div`
@@ -344,13 +430,15 @@ const PriceTitle = styled.div`
   font-size: 1.5rem;
   
   .label {
-    color: #2d5a3d;
+    color: ${theme.white};
+    font-weight: 600;
   }
   
   .amount {
-    font-size: 1.875rem;
+    font-size: 2.5rem;
     font-weight: bold;
-    color: #ff6b35;
+    color: ${theme.brandAccent};
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 `
 
@@ -376,12 +464,14 @@ const PriceItem = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background-color: rgba(232, 240, 220, 0.3);
+  background: linear-gradient(135deg, ${theme.lightGray} 0%, ${theme.mediumGray}20 100%);
   border-radius: 0.5rem;
+  border: 1px solid ${theme.mediumGray}30;
   
   .label {
     font-weight: 500;
     font-size: 0.875rem;
+    color: ${theme.brandPrimary};
   }
   
   .actions {
@@ -393,13 +483,15 @@ const PriceItem = styled.div`
   .price {
     font-weight: bold;
     font-size: 0.875rem;
+    color: ${theme.button};
   }
 `
 
 const DetailSection = styled.div`
   padding: 0.75rem;
-  background-color: rgba(232, 240, 220, 0.3);
+  background: linear-gradient(135deg, ${theme.brandAccent}08 0%, ${theme.link}08 100%);
   border-radius: 0.5rem;
+  border: 1px solid ${theme.brandAccent}20;
   
   .header {
     display: flex;
@@ -411,6 +503,7 @@ const DetailSection = styled.div`
   .title {
     font-weight: 500;
     font-size: 0.875rem;
+    color: ${theme.brandPrimary};
   }
   
   .items {
@@ -423,11 +516,12 @@ const DetailSection = styled.div`
     display: flex;
     justify-content: space-between;
     font-size: 0.75rem;
-    color: #5a6b4a;
+    color: ${theme.darkGray};
   }
   
   .item-price {
     font-weight: 500;
+    color: ${theme.button};
   }
 `
 
@@ -442,12 +536,14 @@ const BackButton = styled(Button)`
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   font-size: 1.125rem;
-  border: 2px solid rgba(45, 90, 61, 0.3);
-  color: #2d5a3d;
+  border: 2px solid ${theme.brandAccent}50;
+  color: ${theme.brandPrimary};
   background: transparent;
   
   &:hover {
-    background-color: rgba(45, 90, 61, 0.1);
+    background: ${theme.brandAccent}10;
+    border-color: ${theme.brandAccent};
+    transform: translateY(-1px);
   }
 `
 
@@ -457,11 +553,14 @@ const NextButton = styled(Button)`
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   font-size: 1.125rem;
-  background-color: #ff6b35;
-  color: white;
+  background: linear-gradient(135deg, ${theme.button} 0%, ${theme.buttonHover} 100%);
+  color: ${theme.white};
+  border: none;
   
   &:hover {
-    background-color: rgba(255, 107, 53, 0.9);
+    background: linear-gradient(135deg, ${theme.buttonHover} 0%, ${theme.button} 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px -4px rgba(27, 173, 154, 0.4);
   }
 `
 
@@ -471,34 +570,47 @@ const FinalButton = styled(Button)`
   gap: 0.5rem;
   padding: 0.75rem 2rem;
   font-size: 1.125rem;
-  background-color: #ff6b35;
-  color: white;
+  background: linear-gradient(135deg, ${theme.brandAccent} 0%, ${theme.link} 100%);
+  color: ${theme.brandSecondary};
+  border: none;
+  font-weight: 600;
   
   &:hover {
-    background-color: rgba(255, 107, 53, 0.9);
+    background: linear-gradient(135deg, ${theme.link} 0%, ${theme.brandAccent} 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px -4px rgba(0, 240, 255, 0.4);
   }
 `
 
 const UrlInputSection = styled.div`
   margin-top: 2rem;
   padding: 1.5rem;
-  background-color: rgba(232, 240, 220, 0.5);
+  background: linear-gradient(135deg, ${theme.brandAccent}08 0%, ${theme.link}08 100%);
   border-radius: 0.75rem;
   max-width: 64rem;
   margin-left: auto;
   margin-right: auto;
+  border: 1px solid ${theme.brandAccent}20;
   
   .label {
     font-size: 1.125rem;
     font-weight: 500;
     margin-bottom: 0.5rem;
     display: block;
+    color: ${theme.brandPrimary};
   }
   
   input {
     font-size: 1.125rem;
     padding: 0.75rem;
-    border: 2px solid #e8f0dc;
+    border: 2px solid ${theme.mediumGray};
+    border-radius: 0.5rem;
+    width: 100%;
+    
+    &:focus {
+      border-color: ${theme.brandAccent};
+      box-shadow: 0 0 0 3px ${theme.brandAccent}20;
+    }
   }
 `
 
@@ -588,14 +700,14 @@ const pricing = {
   },
 }
 
-const DimarLogo = () => (
+const AppLaunchLogo = () => (
   <LogoContainer>
     <LogoIcon>
-      <span>D</span>
+      <span>A</span>
     </LogoIcon>
     <LogoText>
-      <span className="brand">DIMAR</span>
-      <span className="tagline">DIGITALES MARKETING</span>
+      <span className="brand">APPLAUNCH</span>
+      <span className="tagline">DIGITAL SOLUTIONS</span>
     </LogoText>
   </LogoContainer>
 )
@@ -699,9 +811,7 @@ export default function Component() {
                       Privatperson
                     </Label>
                   </OptionContent>
-                  <Badge variant="outline" className="bg-muted">
-                    Basis
-                  </Badge>
+                  <StyledBadge variant="default">Basis</StyledBadge>
                 </OptionCard>
                 <OptionCard>
                   <RadioGroupItem value="kleines Unternehmen" id="kleines-unternehmen" className="border-primary" />
@@ -710,9 +820,7 @@ export default function Component() {
                       Kleines Unternehmen
                     </Label>
                   </OptionContent>
-                  <Badge variant="outline" className="bg-accent/10 text-accent border-accent/30">
-                    +200€
-                  </Badge>
+                  <StyledBadge variant="accent">+200€</StyledBadge>
                 </OptionCard>
                 <OptionCard>
                   <RadioGroupItem value="großes Unternehmen" id="grosses-unternehmen" className="border-primary" />
@@ -721,9 +829,7 @@ export default function Component() {
                       Großes Unternehmen
                     </Label>
                   </OptionContent>
-                  <Badge variant="outline" className="bg-accent/10 text-accent border-accent/30">
-                    +500€
-                  </Badge>
+                  <StyledBadge variant="accent">+500€</StyledBadge>
                 </OptionCard>
               </RadioGroup>
             </OptionsGrid>
@@ -753,9 +859,7 @@ export default function Component() {
                     </Label>
                     <p className="description">Alle Inhalte auf einer Seite - perfekt für einfache Präsentationen</p>
                   </OptionContent>
-                  <Badge variant="outline" className="bg-accent/10 text-accent border-accent/30">
-                    800€
-                  </Badge>
+                  <StyledBadge variant="accent">800€</StyledBadge>
                 </OptionCardLarge>
                 <OptionCardLarge>
                   <RadioGroupItem value="Multi Pager" id="multi-pager" className="border-primary" />
@@ -765,9 +869,7 @@ export default function Component() {
                     </Label>
                     <p className="description">Mehrere Unterseiten - ideal für umfangreiche Websites</p>
                   </OptionContent>
-                  <Badge variant="outline" className="bg-accent/10 text-accent border-accent/30">
-                    1.500€
-                  </Badge>
+                  <StyledBadge variant="accent">1.500€</StyledBadge>
                 </OptionCardLarge>
               </RadioGroup>
             </OptionsGrid>
@@ -796,9 +898,7 @@ export default function Component() {
                       Ja, ich habe bereits eine Website
                     </Label>
                   </OptionContent>
-                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                    -200€
-                  </Badge>
+                  <StyledBadge variant="success">-200€</StyledBadge>
                 </OptionCard>
                 <OptionCard>
                   <RadioGroupItem value="Nein" id="website-nein" className="border-primary" />
@@ -862,9 +962,9 @@ export default function Component() {
                       {page}
                     </Label>
                   </OptionContent>
-                  <Badge variant="outline" className="bg-accent/10 text-accent border-accent/30">
+                  <StyledBadge variant="accent">
                     +{pricing.contentPages[page as keyof typeof pricing.contentPages]}€
-                  </Badge>
+                  </StyledBadge>
                 </OptionCard>
               ))}
             </OptionsGrid>
@@ -903,9 +1003,7 @@ export default function Component() {
                     </Label>
                     <p className="description">Wir erstellen oder beschaffen professionelle Bilder für dich</p>
                   </OptionContent>
-                  <Badge variant="outline" className="bg-accent/10 text-accent border-accent/30">
-                    +300€
-                  </Badge>
+                  <StyledBadge variant="accent">+300€</StyledBadge>
                 </OptionCardLarge>
               </RadioGroup>
             </OptionsGrid>
@@ -942,9 +1040,7 @@ export default function Component() {
                     </Label>
                     <p className="description">Wir erstellen professionelle, SEO-optimierte Texte für dich</p>
                   </OptionContent>
-                  <Badge variant="outline" className="bg-accent/10 text-accent border-accent/30">
-                    +400€
-                  </Badge>
+                  <StyledBadge variant="accent">+400€</StyledBadge>
                 </OptionCardLarge>
               </RadioGroup>
             </OptionsGrid>
@@ -981,9 +1077,7 @@ export default function Component() {
                     </Label>
                     <p className="description">Wir entwickeln ein individuelles Design-Konzept für dich</p>
                   </OptionContent>
-                  <Badge variant="outline" className="bg-accent/10 text-accent border-accent/30">
-                    +350€
-                  </Badge>
+                  <StyledBadge variant="accent">+350€</StyledBadge>
                 </OptionCardLarge>
               </RadioGroup>
             </OptionsGrid>
@@ -1022,9 +1116,9 @@ export default function Component() {
                       {feature}
                     </Label>
                   </OptionContent>
-                  <Badge variant="outline" className="bg-accent/10 text-accent border-accent/30">
+                  <StyledBadge variant="accent">
                     +{pricing.features[feature as keyof typeof pricing.features]}€
-                  </Badge>
+                  </StyledBadge>
                 </OptionCard>
               ))}
             </OptionsGrid>
@@ -1238,10 +1332,10 @@ export default function Component() {
         {/* Header */}
         <HeaderSection>
           <HeaderCard>
-            <DimarLogo />
+            <AppLaunchLogo />
             <ContactInfo>
               <div className="label">Kostenlose Beratung</div>
-              <div className="phone">+49 (0) 123 456 789</div>
+              <div className="phone">+41 (0) 44 123 45 67</div>
             </ContactInfo>
           </HeaderCard>
 
@@ -1262,7 +1356,7 @@ export default function Component() {
                 </span>
               </ProgressHeader>
               <ProgressBarWrapper>
-                <Progress value={progress} className="h-3" />
+                <Progress value={progress} className="h-3 progress-bar" />
               </ProgressBarWrapper>
 
               {/* Step Navigation */}

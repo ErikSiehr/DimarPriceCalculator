@@ -23,14 +23,14 @@ const config: Config = {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "#f4f7e8", // Light green background like DIMAR
+        background: "#013c66", // AppLaunch brand primary
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#2d5a3d", // Dark green like DIMAR logo
+          DEFAULT: "#013c66", // AppLaunch brand primary
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
+          DEFAULT: "#001731", // AppLaunch brand secondary
           foreground: "hsl(var(--secondary-foreground))",
         },
         destructive: {
@@ -38,12 +38,12 @@ const config: Config = {
           foreground: "hsl(var(--destructive-foreground))",
         },
         muted: {
-          DEFAULT: "#e8f0dc", // Slightly darker green for muted areas
-          foreground: "#5a6b4a",
+          DEFAULT: "#f8fafc", // Light gray
+          foreground: "#64748b", // Dark gray
         },
         accent: {
-          DEFAULT: "#ff6b35", // Orange accent color like DIMAR CTA buttons
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "#00f0ff", // AppLaunch brand accent
+          foreground: "#001731", // AppLaunch brand secondary for contrast
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",
