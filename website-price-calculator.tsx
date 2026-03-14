@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import styled from "styled-components"
-import { ChevronLeft, ChevronRight, Check, Edit2, Send, Mail } from "lucide-react"
+import { ChevronLeft, ChevronRight, Check, Edit2, Send, Mail, Download, FileText, Shield } from "lucide-react"
+import { jsPDF } from "jspdf"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -539,6 +540,155 @@ const EmailSection = styled.div`
   }
 `
 
+const ConsentSection = styled.div`
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: rgba(45, 90, 61, 0.05);
+  border: 2px solid rgba(45, 90, 61, 0.2);
+  border-radius: 0.75rem;
+`
+
+const ConsentHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  
+  h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #2d5a3d;
+  }
+`
+
+const ConsentText = styled.div`
+  font-size: 0.875rem;
+  color: #5a6b4a;
+  line-height: 1.6;
+  
+  ul {
+    margin: 1rem 0;
+    padding-left: 1.25rem;
+    
+    li {
+      margin-bottom: 0.5rem;
+      position: relative;
+      
+      &::marker {
+        color: #2d5a3d;
+      }
+    }
+  }
+  
+  strong {
+    color: #2d5a3d;
+  }
+`
+
+const ConsentCheckbox = styled.label`
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: white;
+  border: 2px solid #e8f0dc;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: #2d5a3d;
+  }
+  
+  input {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.125rem;
+    accent-color: #2d5a3d;
+    cursor: pointer;
+  }
+  
+  span {
+    font-size: 0.9rem;
+    color: #2d5a3d;
+    font-weight: 500;
+  }
+`
+
+const PdfSuccessSection = styled.div`
+  max-width: 36rem;
+  margin: 2rem auto 0;
+  padding: 1.5rem;
+  background-color: rgba(232, 240, 220, 0.5);
+  border-radius: 0.75rem;
+  text-align: center;
+  
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d5a3d;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  p {
+    font-size: 0.9rem;
+    color: #5a6b4a;
+    margin-bottom: 1.5rem;
+  }
+`
+
+const ButtonGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  
+  @media (min-width: 640px) {
+    flex-direction: row;
+    justify-content: center;
+  }
+`
+
+const PdfButton = styled(Button)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  background-color: #2d5a3d;
+  color: white;
+  
+  &:hover {
+    background-color: rgba(45, 90, 61, 0.9);
+  }
+`
+
+const EmailPdfSection = styled.div`
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(45, 90, 61, 0.2);
+  
+  .label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #2d5a3d;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+  
+  .input-group {
+    display: flex;
+    gap: 0.5rem;
+    max-width: 28rem;
+    margin: 0 auto;
+  }
+`
+
 interface AnamneseState {
   // Basisdaten
   vorname: string
@@ -714,6 +864,8 @@ export default function AnamneseFormular() {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [sendEmail, setSendEmail] = useState("")
   const [emailSent, setEmailSent] = useState(false)
+  const [consentGiven, setConsentGiven] = useState(false)
+  const [pdfGenerated, setPdfGenerated] = useState(false)
 
   const updateState = (key: keyof AnamneseState, value: string) => {
     setState((prev) => ({ ...prev, [key]: value }))
@@ -778,13 +930,151 @@ export default function AnamneseFormular() {
     setCurrentStep(stepIndex)
   }
 
+  const generatePDF = () => {
+    const doc = new jsPDF()
+    const pageWidth = doc.internal.pageSize.getWidth()
+    let yPos = 20
+    const lineHeight = 7
+    const sectionGap = 12
+    const leftMargin = 20
+    const rightMargin = pageWidth - 20
+    
+    // Helper function to add section header
+    const addSectionHeader = (title: string) => {
+      if (yPos > 250) {
+        doc.addPage()
+        yPos = 20
+      }
+      doc.setFontSize(14)
+      doc.setFont("helvetica", "bold")
+      doc.setTextColor(45, 90, 61)
+      doc.text(title, leftMargin, yPos)
+      yPos += lineHeight + 2
+      doc.setDrawColor(45, 90, 61)
+      doc.line(leftMargin, yPos, rightMargin, yPos)
+      yPos += 6
+    }
+    
+    // Helper function to add data row
+    const addDataRow = (label: string, value: string) => {
+      if (yPos > 270) {
+        doc.addPage()
+        yPos = 20
+      }
+      doc.setFontSize(10)
+      doc.setFont("helvetica", "normal")
+      doc.setTextColor(90, 107, 74)
+      doc.text(label, leftMargin, yPos)
+      doc.setTextColor(45, 90, 61)
+      doc.setFont("helvetica", "bold")
+      doc.text(value || "-", leftMargin + 70, yPos)
+      yPos += lineHeight
+    }
+    
+    // Title
+    doc.setFontSize(24)
+    doc.setFont("helvetica", "bold")
+    doc.setTextColor(45, 90, 61)
+    doc.text("Anamnese Formular", pageWidth / 2, yPos, { align: "center" })
+    yPos += 10
+    
+    // Subtitle with date
+    doc.setFontSize(10)
+    doc.setFont("helvetica", "normal")
+    doc.setTextColor(90, 107, 74)
+    const today = new Date().toLocaleDateString("de-DE")
+    doc.text(`Erstellt am: ${today}`, pageWidth / 2, yPos, { align: "center" })
+    yPos += sectionGap + 5
+    
+    // Basisdaten
+    addSectionHeader("Basisdaten")
+    addDataRow("Name:", `${state.vorname} ${state.nachname}`)
+    addDataRow("Geburtsdatum:", state.geburtsdatum)
+    addDataRow("Geschlecht:", state.geschlecht)
+    addDataRow("Körpergröße:", `${state.koerpergroesse} cm`)
+    addDataRow("Gewicht:", `${state.gewicht} kg`)
+    yPos += sectionGap
+    
+    // Kontaktdaten
+    addSectionHeader("Kontaktdaten")
+    if (state.strasse) addDataRow("Straße:", state.strasse)
+    if (state.plzOrt) addDataRow("PLZ/Ort:", state.plzOrt)
+    if (state.land) addDataRow("Land:", state.land)
+    if (state.email) addDataRow("E-Mail:", state.email)
+    addDataRow("Telefon:", state.telefon)
+    addDataRow("Mobil:", state.mobil)
+    addDataRow("Gruppe:", state.gruppe)
+    yPos += sectionGap
+    
+    // Gesundheitsdaten Teil 1
+    addSectionHeader("Gesundheitsdaten (Teil 1)")
+    addDataRow("Rauchen:", state.rauchen)
+    addDataRow("Hypertonie:", state.hypertonie)
+    addDataRow("Schilddrüse:", state.schilddruese)
+    addDataRow("Schlafstörungen:", state.schlafstoerungen)
+    addDataRow("Diabetes:", state.diabetes)
+    addDataRow("Sportliche Aktivität:", state.sportlicheAktivitaet)
+    addDataRow("COPD:", state.copd)
+    addDataRow("Antidepressiva:", state.antidepressiva)
+    addDataRow("Alkohol:", state.alkohol)
+    addDataRow("Schichtarbeit:", state.schichtarbeit)
+    yPos += sectionGap
+    
+    // Gesundheitsdaten Teil 2
+    addSectionHeader("Gesundheitsdaten (Teil 2)")
+    addDataRow("Allergien:", state.allergien)
+    if (state.ernaehrung) addDataRow("Ernährung:", state.ernaehrung)
+    addDataRow("Krebstherapie:", state.krebstherapie)
+    addDataRow("Immunsystem-Hinweis:", state.immunsystem)
+    addDataRow("Depressionen:", state.depressionen)
+    addDataRow("Gelenkschmerzen:", state.gelenkschmerzen)
+    if (state.schmerzen) addDataRow("Schmerzen:", state.schmerzen)
+    yPos += sectionGap
+    
+    // Lebensstil
+    addSectionHeader("Lebensstil")
+    addDataRow("Hautprobleme:", state.hautprobleme)
+    addDataRow("Passivrauchen:", state.passivrauchen)
+    addDataRow("Weniger als 1,5L Wasser/Tag:", state.wasserkonsum)
+    addDataRow("Gesüßte Getränke:", state.gesuessteGetraenke)
+    addDataRow("Erhöhter Zuckerkonsum:", state.zuckerkonsum)
+    yPos += sectionGap
+    
+    // Körpermaße
+    addSectionHeader("Körpermaße")
+    addDataRow("Nackenumfang:", `${state.nackenumfang} cm`)
+    addDataRow("Hüftumfang:", `${state.hueftumfang} cm`)
+    addDataRow("Max. Herzfrequenz:", `${calculateMaxHeartRate()} bpm`)
+    if (state.blutgruppe) addDataRow("Blutgruppe:", state.blutgruppe)
+    
+    // Footer
+    doc.addPage()
+    yPos = 20
+    doc.setFontSize(10)
+    doc.setFont("helvetica", "italic")
+    doc.setTextColor(90, 107, 74)
+    doc.text("Dieses Dokument wurde elektronisch erstellt und enthält vertrauliche Gesundheitsdaten.", leftMargin, yPos)
+    yPos += lineHeight
+    doc.text("Die Daten werden nur für die Dauer der Zusammenarbeit gespeichert.", leftMargin, yPos)
+    
+    return doc
+  }
+
   const handleSubmit = () => {
+    if (!consentGiven) return
     setIsSubmitted(true)
+    setPdfGenerated(true)
+  }
+
+  const handleDownloadPdf = () => {
+    const doc = generatePDF()
+    doc.save(`Anamnese_${state.vorname}_${state.nachname}_${new Date().toISOString().split('T')[0]}.pdf`)
   }
 
   const handleSendEmail = () => {
     if (sendEmail) {
-      // Hier würde normalerweise die E-Mail-Logik implementiert werden
+      // Hier würde normalerweise die E-Mail-Logik mit PDF-Anhang implementiert werden
+      // In einer echten Implementierung würde hier ein API-Call erfolgen
       setEmailSent(true)
     }
   }
@@ -1466,42 +1756,61 @@ export default function AnamneseFormular() {
                   <Check className="h-10 w-10 text-white" />
                 </div>
                 <h2>Formular erfolgreich übermittelt!</h2>
-                <p>Vielen Dank für Ihre Angaben. Ihre Daten wurden erfolgreich gespeichert.</p>
-                
-                {!emailSent ? (
-                  <EmailSection>
-                    <label className="label" htmlFor="sendEmail">
-                      Möchten Sie eine Kopie Ihrer Auswahlen per E-Mail erhalten?
-                    </label>
-                    <div className="input-group">
-                      <FormInput
-                        id="sendEmail"
-                        type="email"
-                        placeholder="ihre@email.de"
-                        value={sendEmail}
-                        onChange={(e) => setSendEmail(e.target.value)}
-                      />
-                      <Button
-                        onClick={handleSendEmail}
-                        disabled={!sendEmail}
-                        style={{ backgroundColor: "#2d5a3d", color: "white" }}
-                      >
-                        <Mail className="h-4 w-4 mr-2" />
-                        Senden
-                      </Button>
-                    </div>
-                  </EmailSection>
-                ) : (
-                  <Card className="max-w-md mx-auto border-2 border-green-200 bg-green-50">
-                    <CardContent className="pt-6 text-center">
-                      <Check className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                      <p className="text-green-700 font-medium">
-                        E-Mail wurde an {sendEmail} gesendet!
-                      </p>
-                    </CardContent>
-                  </Card>
-                )}
+                <p>Vielen Dank für Ihre Angaben. Ihre Daten wurden erfolgreich gespeichert und Ihre PDF wurde erstellt.</p>
               </SuccessMessage>
+              
+              <PdfSuccessSection>
+                <h3>
+                  <FileText className="h-6 w-6" />
+                  Ihre Anamnese-PDF
+                </h3>
+                <p>
+                  Sie können Ihre Anamnese-Daten jetzt als PDF herunterladen oder sich per E-Mail zusenden lassen.
+                </p>
+                
+                <ButtonGroup>
+                  <PdfButton onClick={handleDownloadPdf}>
+                    <Download className="h-5 w-5" />
+                    PDF herunterladen
+                  </PdfButton>
+                </ButtonGroup>
+                
+                <EmailPdfSection>
+                  {!emailSent ? (
+                    <>
+                      <label className="label" htmlFor="sendEmail">
+                        PDF per E-Mail erhalten:
+                      </label>
+                      <div className="input-group">
+                        <FormInput
+                          id="sendEmail"
+                          type="email"
+                          placeholder="ihre@email.de"
+                          value={sendEmail}
+                          onChange={(e) => setSendEmail(e.target.value)}
+                        />
+                        <Button
+                          onClick={handleSendEmail}
+                          disabled={!sendEmail}
+                          style={{ backgroundColor: "#2d5a3d", color: "white" }}
+                        >
+                          <Mail className="h-4 w-4 mr-2" />
+                          Senden
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <Card className="max-w-md mx-auto border-2 border-green-200 bg-green-50">
+                      <CardContent className="pt-6 text-center">
+                        <Check className="h-8 w-8 text-green-600 mx-auto mb-2" />
+                        <p className="text-green-700 font-medium">
+                          PDF wurde an {sendEmail} gesendet!
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </EmailPdfSection>
+              </PdfSuccessSection>
             </StepContent>
           )
         }
@@ -1785,6 +2094,58 @@ export default function AnamneseFormular() {
                 </OverviewSection>
               </OverviewContent>
             </OverviewCard>
+
+            {/* Einverständniserklärung */}
+            <ConsentSection>
+              <ConsentHeader>
+                <Shield className="h-6 w-6 text-[#2d5a3d]" />
+                <h4>Einverständniserklärung zur Datenverarbeitung</h4>
+              </ConsentHeader>
+              
+              <ConsentText>
+                <p>
+                  <strong>Hinweis zu Gesundheitsdaten:</strong> Die von Ihnen angegebenen Daten enthalten 
+                  sensible Gesundheitsinformationen gemäß Art. 9 DSGVO (besondere Kategorien personenbezogener Daten).
+                </p>
+                
+                <ul>
+                  <li>
+                    <strong>Zweck der Datenerhebung:</strong> Ihre Angaben werden zur Erstellung einer 
+                    individuellen Gesundheitsanalyse und Beratung verwendet. [DUMMY: Bitte passen Sie 
+                    diesen Text an Ihren spezifischen Verwendungszweck an.]
+                  </li>
+                  <li>
+                    <strong>Datenempfänger:</strong> Ihre Daten werden ausschließlich an [DUMMY: Name 
+                    des Unternehmens/der verantwortlichen Person] übermittelt und nicht an Dritte 
+                    weitergegeben.
+                  </li>
+                  <li>
+                    <strong>Speicherdauer:</strong> Ihre Daten werden nur für die Dauer der 
+                    Zusammenarbeit gespeichert. Nach Beendigung der Zusammenarbeit werden alle 
+                    PDF-Dokumente und personenbezogenen Daten gelöscht. [DUMMY: Bitte geben Sie hier 
+                    die konkrete Aufbewahrungsfrist an.]
+                  </li>
+                  <li>
+                    <strong>Ihre Rechte:</strong> Sie haben jederzeit das Recht auf Auskunft, 
+                    Berichtigung, Löschung und Widerspruch bezüglich Ihrer Daten.
+                  </li>
+                </ul>
+                
+                <ConsentCheckbox>
+                  <input
+                    type="checkbox"
+                    id="consent"
+                    checked={consentGiven}
+                    onChange={(e) => setConsentGiven(e.target.checked)}
+                  />
+                  <span>
+                    Ich habe die Datenschutzhinweise gelesen und stimme der Verarbeitung meiner 
+                    Gesundheitsdaten für den oben genannten Zweck ausdrücklich zu. Mir ist bewusst, 
+                    dass ich diese Einwilligung jederzeit widerrufen kann.
+                  </span>
+                </ConsentCheckbox>
+              </ConsentText>
+            </ConsentSection>
           </StepContent>
         )
 
@@ -1868,10 +2229,10 @@ export default function AnamneseFormular() {
                     <ChevronRight className="h-5 w-5" />
                   </NextButton>
                 ) : (
-                  <SubmitButton onClick={handleSubmit}>
-                    <Send className="h-5 w-5" />
-                    Formular absenden
-                  </SubmitButton>
+<SubmitButton onClick={handleSubmit} disabled={!consentGiven} style={{ opacity: consentGiven ? 1 : 0.5 }}>
+  <Send className="h-5 w-5" />
+  Formular übermitteln
+  </SubmitButton>
                 )}
               </NavigationButtons>
             )}
