@@ -14,7 +14,7 @@ import { Progress } from "@/components/ui/progress"
 // Styled Components
 const Container = styled.div`
   min-height: 100vh;
-  background-color: #f4f7e8;
+  background-color: #F7F5EF;
 `
 
 const MainWrapper = styled.div`
@@ -36,7 +36,7 @@ const HeaderCard = styled.div`
   background: white;
   border-radius: 1rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  border: 2px solid rgba(45, 90, 61, 0.1);
+  border: 2px solid rgba(168, 148, 84, 0.1);
 `
 
 const LogoContainer = styled.div`
@@ -48,7 +48,7 @@ const LogoContainer = styled.div`
 const LogoIcon = styled.div`
   width: 3rem;
   height: 3rem;
-  background-color: #2d5a3d;
+  background-color: #A89454;
   border-radius: 0.5rem;
   display: flex;
   align-items: center;
@@ -68,13 +68,13 @@ const LogoText = styled.div`
   .brand {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #2d5a3d;
+    color: #3A3429;
     letter-spacing: -0.025em;
   }
   
   .tagline {
     font-size: 0.75rem;
-    color: #5a6b4a;
+    color: #A89454;
     text-transform: uppercase;
     letter-spacing: 0.1em;
   }
@@ -85,14 +85,14 @@ const ContactInfo = styled.div`
   
   .label {
     font-size: 0.875rem;
-    color: #5a6b4a;
+    color: #A89454;
     margin-bottom: 0.25rem;
   }
   
   .phone {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #2d5a3d;
+    color: #3A3429;
   }
 `
 
@@ -102,18 +102,18 @@ const TitleSection = styled.div`
   h1 {
     font-size: 3rem;
     font-weight: bold;
-    color: #2d5a3d;
+    color: #3A3429;
     margin-bottom: 1rem;
   }
   
   p {
     font-size: 1.25rem;
-    color: #5a6b4a;
+    color: #A89454;
   }
 `
 
 const MainCard = styled.div`
-  border: 2px solid rgba(45, 90, 61, 0.2);
+  border: 2px solid rgba(168, 148, 84, 0.15);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   border-radius: 0.5rem;
   background: white;
@@ -136,12 +136,12 @@ const ProgressHeader = styled.div`
   .title {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #2d5a3d;
+    color: #3A3429;
   }
   
   .step-info {
     font-size: 1.125rem;
-    color: #5a6b4a;
+    color: #A89454;
   }
 `
 
@@ -187,9 +187,9 @@ const StepButton = styled.button<{
   ${(props) =>
     props.$isActive &&
     `
-    background-color: #2d5a3d;
+    background-color: #A89454;
     color: white;
-    border-color: #2d5a3d;
+    border-color: #A89454;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     transform: scale(1.1);
   `}
@@ -198,12 +198,12 @@ const StepButton = styled.button<{
     props.$isCompleted &&
     !props.$isActive &&
     `
-    background-color: rgba(45, 90, 61, 0.1);
-    color: #2d5a3d;
-    border-color: rgba(45, 90, 61, 0.3);
+    background-color: rgba(168, 148, 84, 0.1);
+    color: #3A3429;
+    border-color: rgba(168, 148, 84, 0.3);
     
     &:hover {
-      background-color: rgba(45, 90, 61, 0.2);
+      background-color: rgba(168, 148, 84, 0.2);
     }
   `}
   
@@ -211,12 +211,12 @@ const StepButton = styled.button<{
     !props.$isCompleted &&
     !props.$isActive &&
     `
-    background-color: #e8f0dc;
-    color: #5a6b4a;
-    border-color: rgba(90, 107, 74, 0.3);
+    background-color: #F7F5EF;
+    color: #A89454;
+    border-color: rgba(168, 148, 84, 0.3);
     
     &:hover {
-      background-color: rgba(232, 240, 220, 0.8);
+      background-color: rgba(247, 245, 239, 0.8);
     }
   `}
 `
@@ -230,7 +230,7 @@ const StepLabel = styled.span<{ $isActive: boolean; $isCompleted: boolean }>`
   ${(props) =>
     props.$isActive &&
     `
-    color: #2d5a3d;
+    color: #3A3429;
     font-weight: 600;
   `}
   
@@ -238,14 +238,14 @@ const StepLabel = styled.span<{ $isActive: boolean; $isCompleted: boolean }>`
     props.$isCompleted &&
     !props.$isActive &&
     `
-    color: #2d5a3d;
+    color: #3A3429;
   `}
   
   ${(props) =>
     !props.$isCompleted &&
     !props.$isActive &&
     `
-    color: #5a6b4a;
+    color: #A89454;
   `}
 `
 
@@ -261,13 +261,13 @@ const QuestionTitle = styled.h2`
   font-size: 2.25rem;
   font-weight: bold;
   margin-bottom: 1rem;
-  color: #2d5a3d;
+  color: #3A3429;
   text-align: center;
 `
 
 const QuestionDescription = styled.p`
   font-size: 1.125rem;
-  color: #5a6b4a;
+  color: #A89454;
   text-align: center;
 `
 
@@ -292,17 +292,17 @@ const FormField = styled.div`
 const FormLabel = styled(Label)`
   font-size: 1rem;
   font-weight: 500;
-  color: #2d5a3d;
+  color: #3A3429;
 `
 
 const FormInput = styled(Input)`
   font-size: 1rem;
   padding: 0.75rem;
-  border: 2px solid #e8f0dc;
+  border: 2px solid rgba(168, 148, 84, 0.3);
   border-radius: 0.5rem;
   
   &:focus {
-    border-color: #2d5a3d;
+    border-color: #A89454;
     outline: none;
   }
 `
@@ -310,13 +310,14 @@ const FormInput = styled(Input)`
 const FormSelect = styled.select`
   font-size: 1rem;
   padding: 0.75rem;
-  border: 2px solid #e8f0dc;
+  border: 2px solid rgba(168, 148, 84, 0.3);
   border-radius: 0.5rem;
   background: white;
   cursor: pointer;
+  color: #3A3429;
   
   &:focus {
-    border-color: #2d5a3d;
+    border-color: #A89454;
     outline: none;
   }
 `
@@ -329,16 +330,16 @@ const ToggleGroup = styled.div`
 const ToggleButton = styled.button<{ $isActive: boolean }>`
   flex: 1;
   padding: 0.75rem 1rem;
-  border: 2px solid ${(props) => (props.$isActive ? "#2d5a3d" : "#e8f0dc")};
+  border: 2px solid ${(props) => (props.$isActive ? "#A89454" : "rgba(168, 148, 84, 0.3)")};
   border-radius: 0.5rem;
-  background: ${(props) => (props.$isActive ? "#2d5a3d" : "white")};
-  color: ${(props) => (props.$isActive ? "white" : "#5a6b4a")};
+  background: ${(props) => (props.$isActive ? "#A89454" : "white")};
+  color: ${(props) => (props.$isActive ? "white" : "#3A3429")};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
-    border-color: #2d5a3d;
+    border-color: #A89454;
   }
 `
 
@@ -356,7 +357,7 @@ const HealthQuestionGrid = styled.div`
 
 const HealthQuestionCard = styled.div`
   padding: 1rem;
-  border: 2px solid #e8f0dc;
+  border: 2px solid rgba(168, 148, 84, 0.2);
   border-radius: 0.75rem;
   background: white;
 `
@@ -364,12 +365,12 @@ const HealthQuestionCard = styled.div`
 const HealthQuestionLabel = styled.div`
   font-size: 0.95rem;
   font-weight: 500;
-  color: #2d5a3d;
+  color: #3A3429;
   margin-bottom: 0.75rem;
 `
 
 const OverviewCard = styled.div`
-  border: 2px solid rgba(45, 90, 61, 0.2);
+  border: 2px solid rgba(168, 148, 84, 0.15);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   border-radius: 0.5rem;
   background: white;
@@ -377,14 +378,14 @@ const OverviewCard = styled.div`
 `
 
 const OverviewHeader = styled.div`
-  background-color: rgba(45, 90, 61, 0.05);
+  background-color: rgba(168, 148, 84, 0.05);
   padding: 1.5rem;
-  border-bottom: 1px solid rgba(45, 90, 61, 0.1);
+  border-bottom: 2px solid #A89454;
   
   h3 {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #2d5a3d;
+    color: #3A3429;
   }
 `
 
@@ -394,9 +395,10 @@ const OverviewContent = styled.div`
 
 const OverviewSection = styled.div`
   padding: 1rem;
-  background-color: rgba(232, 240, 220, 0.3);
+  background-color: rgba(168, 148, 84, 0.08);
   border-radius: 0.5rem;
   margin-bottom: 1rem;
+  border-left: 4px solid #A89454;
   
   &:last-child {
     margin-bottom: 0;
@@ -412,7 +414,7 @@ const OverviewSectionHeader = styled.div`
   h4 {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #2d5a3d;
+    color: #3A3429;
   }
 `
 
@@ -433,12 +435,12 @@ const OverviewItem = styled.div`
   padding: 0.25rem 0;
   
   .label {
-    color: #5a6b4a;
+    color: #A89454;
   }
   
   .value {
     font-weight: 500;
-    color: #2d5a3d;
+    color: #3A3429;
   }
 `
 
@@ -453,12 +455,12 @@ const BackButton = styled(Button)`
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   font-size: 1.125rem;
-  border: 2px solid rgba(45, 90, 61, 0.3);
-  color: #2d5a3d;
+  border: 2px solid rgba(168, 148, 84, 0.3);
+  color: #3A3429;
   background: transparent;
   
   &:hover {
-    background-color: rgba(45, 90, 61, 0.1);
+    background-color: rgba(168, 148, 84, 0.08);
   }
 `
 
@@ -468,11 +470,11 @@ const NextButton = styled(Button)`
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   font-size: 1.125rem;
-  background-color: #2d5a3d;
+  background-color: #A89454;
   color: white;
   
   &:hover {
-    background-color: rgba(45, 90, 61, 0.9);
+    background-color: rgba(168, 148, 84, 0.9);
   }
 `
 
@@ -482,11 +484,11 @@ const SubmitButton = styled(Button)`
   gap: 0.5rem;
   padding: 0.75rem 2rem;
   font-size: 1.125rem;
-  background-color: #ff6b35;
+  background-color: #A89454;
   color: white;
   
   &:hover {
-    background-color: rgba(255, 107, 53, 0.9);
+    background-color: rgba(168, 148, 84, 0.9);
   }
 `
 
@@ -497,7 +499,7 @@ const SuccessMessage = styled.div`
   .icon {
     width: 5rem;
     height: 5rem;
-    background-color: #2d5a3d;
+    background-color: #A89454;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -508,13 +510,13 @@ const SuccessMessage = styled.div`
   h2 {
     font-size: 2rem;
     font-weight: bold;
-    color: #2d5a3d;
+    color: #3A3429;
     margin-bottom: 1rem;
   }
   
   p {
     font-size: 1.125rem;
-    color: #5a6b4a;
+    color: #A89454;
     margin-bottom: 2rem;
   }
 `
@@ -523,13 +525,13 @@ const EmailSection = styled.div`
   max-width: 32rem;
   margin: 0 auto;
   padding: 1.5rem;
-  background-color: rgba(232, 240, 220, 0.5);
+  background-color: rgba(168, 148, 84, 0.08);
   border-radius: 0.75rem;
   
   .label {
     font-size: 1rem;
     font-weight: 500;
-    color: #2d5a3d;
+    color: #3A3429;
     margin-bottom: 0.5rem;
     display: block;
   }
@@ -543,8 +545,8 @@ const EmailSection = styled.div`
 const ConsentSection = styled.div`
   margin-top: 2rem;
   padding: 1.5rem;
-  background-color: rgba(45, 90, 61, 0.05);
-  border: 2px solid rgba(45, 90, 61, 0.2);
+  background-color: rgba(168, 148, 84, 0.05);
+  border: 2px solid rgba(168, 148, 84, 0.2);
   border-radius: 0.75rem;
 `
 
@@ -557,13 +559,13 @@ const ConsentHeader = styled.div`
   h4 {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #2d5a3d;
+    color: #3A3429;
   }
 `
 
 const ConsentText = styled.div`
   font-size: 0.875rem;
-  color: #5a6b4a;
+  color: #A89454;
   line-height: 1.6;
   
   ul {
@@ -575,13 +577,13 @@ const ConsentText = styled.div`
       position: relative;
       
       &::marker {
-        color: #2d5a3d;
+        color: #A89454;
       }
     }
   }
   
   strong {
-    color: #2d5a3d;
+    color: #3A3429;
   }
 `
 
@@ -592,26 +594,26 @@ const ConsentCheckbox = styled.label`
   margin-top: 1rem;
   padding: 1rem;
   background: white;
-  border: 2px solid #e8f0dc;
+  border: 2px solid rgba(168, 148, 84, 0.3);
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
-    border-color: #2d5a3d;
+    border-color: #A89454;
   }
   
   input {
     width: 1.25rem;
     height: 1.25rem;
     margin-top: 0.125rem;
-    accent-color: #2d5a3d;
+    accent-color: #A89454;
     cursor: pointer;
   }
   
   span {
     font-size: 0.9rem;
-    color: #2d5a3d;
+    color: #3A3429;
     font-weight: 500;
   }
 `
@@ -620,14 +622,14 @@ const PdfSuccessSection = styled.div`
   max-width: 36rem;
   margin: 2rem auto 0;
   padding: 1.5rem;
-  background-color: rgba(232, 240, 220, 0.5);
+  background-color: rgba(168, 148, 84, 0.08);
   border-radius: 0.75rem;
   text-align: center;
   
   h3 {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #2d5a3d;
+    color: #3A3429;
     margin-bottom: 1rem;
     display: flex;
     align-items: center;
@@ -637,7 +639,7 @@ const PdfSuccessSection = styled.div`
   
   p {
     font-size: 0.9rem;
-    color: #5a6b4a;
+    color: #A89454;
     margin-bottom: 1.5rem;
   }
 `
@@ -660,23 +662,23 @@ const PdfButton = styled(Button)`
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
-  background-color: #2d5a3d;
+  background-color: #A89454;
   color: white;
   
   &:hover {
-    background-color: rgba(45, 90, 61, 0.9);
+    background-color: rgba(168, 148, 84, 0.9);
   }
 `
 
 const EmailPdfSection = styled.div`
   margin-top: 1.5rem;
   padding-top: 1.5rem;
-  border-top: 1px solid rgba(45, 90, 61, 0.2);
+  border-top: 2px solid #A89454;
   
   .label {
     font-size: 0.9rem;
     font-weight: 500;
-    color: #2d5a3d;
+    color: #3A3429;
     margin-bottom: 0.75rem;
     display: block;
   }
@@ -1462,7 +1464,7 @@ export default function AnamneseFormular() {
               </HealthQuestionCard>
 
               <HealthQuestionCard>
-                <HealthQuestionLabel>Haben Sie spezielle Ernährungsgewohnheiten? (optional)</HealthQuestionLabel>
+                <HealthQuestionLabel>Haben Sie spezielle Ern��hrungsgewohnheiten? (optional)</HealthQuestionLabel>
                 <FormSelect
                   value={state.ernaehrung}
                   onChange={(e) => updateState("ernaehrung", e.target.value)}
