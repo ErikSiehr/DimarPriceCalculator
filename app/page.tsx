@@ -1,5 +1,5 @@
-import Component from "../website-price-calculator"
+import { AnamneseFormular } from "@/components/anamnese"
 
 export default function Page() {
-  return <Component />
+  return <AnamneseFormular />
 }

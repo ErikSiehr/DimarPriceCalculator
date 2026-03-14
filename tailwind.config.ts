@@ -23,35 +23,39 @@ const config: Config = {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "#f4f7e8", // Light green background like DIMAR
-        foreground: "hsl(var(--foreground))",
+        background: "#F7F5EF",
+        foreground: "#3A3429",
         primary: {
-          DEFAULT: "#2d5a3d", // Dark green like DIMAR logo
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "#3A3429",
+          light: "#5A5449",
+          dark: "#2A2419",
+          foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "#F7F5EF",
+          foreground: "#3A3429",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
         muted: {
-          DEFAULT: "#e8f0dc", // Slightly darker green for muted areas
-          foreground: "#5a6b4a",
+          DEFAULT: "rgba(168, 148, 84, 0.08)",
+          foreground: "#A89454",
         },
         accent: {
-          DEFAULT: "#ff6b35", // Orange accent color like DIMAR CTA buttons
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "#A89454",
+          light: "#C4B070",
+          dark: "#8A7A44",
+          foreground: "#FFFFFF",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
         },
         card: {
-          DEFAULT: "#ffffff", // White cards
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "#FFFFFF",
+          foreground: "#3A3429",
         },
       },
       borderRadius: {
