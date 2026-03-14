@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import styled from "styled-components"
-import { ChevronLeft, ChevronRight, Check, Edit2, Send, Mail, Download, FileText, Shield } from "lucide-react"
+import { ChevronLeft, ChevronRight, Check, Edit2, Send, Mail, Download, FileText, Shield, X, ChevronDown } from "lucide-react"
 import { jsPDF } from "jspdf"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -322,6 +322,110 @@ const FormSelect = styled.select`
   }
 `
 
+const MultiSelectContainer = styled.div`
+  position: relative;
+`
+
+const MultiSelectTrigger = styled.button<{ $hasSelection: boolean }>`
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid rgba(168, 148, 84, 0.3);
+  border-radius: 0.5rem;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  text-align: left;
+  color: ${props => props.$hasSelection ? '#3A3429' : '#A89454'};
+  font-size: 1rem;
+  
+  &:focus {
+    border-color: #A89454;
+    outline: none;
+  }
+  
+  &:hover {
+    border-color: #A89454;
+  }
+`
+
+const MultiSelectTags = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  flex: 1;
+`
+
+const MultiSelectTag = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background-color: rgba(168, 148, 84, 0.15);
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  color: #3A3429;
+  
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    color: #A89454;
+    
+    &:hover {
+      color: #3A3429;
+    }
+  }
+`
+
+const MultiSelectDropdown = styled.div<{ $isOpen: boolean }>`
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid rgba(168, 148, 84, 0.3);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: 50;
+  display: ${props => props.$isOpen ? 'block' : 'none'};
+`
+
+const MultiSelectOption = styled.label<{ $isSelected: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  background-color: ${props => props.$isSelected ? 'rgba(168, 148, 84, 0.08)' : 'white'};
+  
+  &:hover {
+    background-color: rgba(168, 148, 84, 0.12);
+  }
+  
+  input {
+    width: 1.125rem;
+    height: 1.125rem;
+    accent-color: #A89454;
+    cursor: pointer;
+  }
+  
+  span {
+    color: #3A3429;
+    font-size: 0.95rem;
+  }
+`
+
 const ToggleGroup = styled.div`
   display: flex;
   gap: 0.5rem;
@@ -360,13 +464,20 @@ const HealthQuestionCard = styled.div`
   border: 2px solid rgba(168, 148, 84, 0.2);
   border-radius: 0.75rem;
   background: white;
+  display: flex;
+  flex-direction: column;
+  min-height: 120px;
 `
 
 const HealthQuestionLabel = styled.div`
   font-size: 0.95rem;
   font-weight: 500;
   color: #3A3429;
-  margin-bottom: 0.75rem;
+  margin-bottom: auto;
+  padding-bottom: 0.75rem;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: flex-start;
 `
 
 const OverviewCard = styled.div`
@@ -706,8 +817,6 @@ interface AnamneseState {
   land: string
   email: string
   telefon: string
-  mobil: string
-  gruppe: string
   
   // Gesundheitsdaten Teil 1
   rauchen: string
@@ -722,8 +831,8 @@ interface AnamneseState {
   schichtarbeit: string
   
   // Gesundheitsdaten Teil 2
-  allergien: string
-  ernaehrung: string
+  allergien: string[]
+  ernaehrung: string[]
   krebstherapie: string
   immunsystem: string
   depressionen: string
@@ -756,8 +865,6 @@ const initialState: AnamneseState = {
   land: "",
   email: "",
   telefon: "",
-  mobil: "",
-  gruppe: "",
   rauchen: "",
   hypertonie: "",
   schilddruese: "",
@@ -768,8 +875,8 @@ const initialState: AnamneseState = {
   antidepressiva: "",
   alkohol: "",
   schichtarbeit: "",
-  allergien: "",
-  ernaehrung: "",
+  allergien: [],
+  ernaehrung: [],
   krebstherapie: "",
   immunsystem: "",
   depressionen: "",
@@ -868,9 +975,46 @@ export default function AnamneseFormular() {
   const [emailSent, setEmailSent] = useState(false)
   const [consentGiven, setConsentGiven] = useState(false)
   const [pdfGenerated, setPdfGenerated] = useState(false)
+  const [allergienOpen, setAllergienOpen] = useState(false)
+  const [ernaehrungOpen, setErnaehrungOpen] = useState(false)
+  const allergienRef = useRef<HTMLDivElement>(null)
+  const ernaehrungRef = useRef<HTMLDivElement>(null)
+  
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (allergienRef.current && !allergienRef.current.contains(event.target as Node)) {
+        setAllergienOpen(false)
+      }
+      if (ernaehrungRef.current && !ernaehrungRef.current.contains(event.target as Node)) {
+        setErnaehrungOpen(false)
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
-  const updateState = (key: keyof AnamneseState, value: string) => {
+  const updateState = (key: keyof AnamneseState, value: string | string[]) => {
     setState((prev) => ({ ...prev, [key]: value }))
+  }
+  
+  const toggleArrayValue = (key: "allergien" | "ernaehrung", value: string) => {
+    setState((prev) => {
+      const currentArray = prev[key]
+      if (currentArray.includes(value)) {
+        return { ...prev, [key]: currentArray.filter(v => v !== value) }
+      } else {
+        return { ...prev, [key]: [...currentArray, value] }
+      }
+    })
+  }
+  
+  const removeArrayValue = (key: "allergien" | "ernaehrung", value: string) => {
+    setState((prev) => ({
+      ...prev,
+      [key]: prev[key].filter(v => v !== value)
+    }))
   }
 
   // Berechne maximale Herzfrequenz basierend auf Geburtsdatum
@@ -892,13 +1036,13 @@ export default function AnamneseFormular() {
         return state.vorname !== "" && state.nachname !== "" && state.geburtsdatum !== "" && 
                state.koerpergroesse !== "" && state.gewicht !== "" && state.geschlecht !== ""
       case 1:
-        return state.telefon !== "" && state.mobil !== "" && state.gruppe !== ""
+        return state.telefon !== ""
       case 2:
         return state.rauchen !== "" && state.hypertonie !== "" && state.schilddruese !== "" &&
                state.schlafstoerungen !== "" && state.diabetes !== "" && state.sportlicheAktivitaet !== "" &&
                state.copd !== "" && state.antidepressiva !== "" && state.alkohol !== "" && state.schichtarbeit !== ""
       case 3:
-        return state.allergien !== "" && state.krebstherapie !== "" && state.immunsystem !== "" &&
+        return state.allergien.length > 0 && state.krebstherapie !== "" && state.immunsystem !== "" &&
                state.depressionen !== "" && state.gelenkschmerzen !== ""
       case 4:
         return state.hautprobleme !== "" && state.passivrauchen !== "" && state.wasserkonsum !== "" &&
@@ -941,6 +1085,10 @@ export default function AnamneseFormular() {
     const leftMargin = 20
     const rightMargin = pageWidth - 20
     
+    // Brand colors for PDF: Primary text #3A3429 (58, 52, 41), Accent #A89454 (168, 148, 84)
+    const primaryColor = { r: 58, g: 52, b: 41 }
+    const accentColor = { r: 168, g: 148, b: 84 }
+    
     // Helper function to add section header
     const addSectionHeader = (title: string) => {
       if (yPos > 250) {
@@ -949,10 +1097,10 @@ export default function AnamneseFormular() {
       }
       doc.setFontSize(14)
       doc.setFont("helvetica", "bold")
-      doc.setTextColor(45, 90, 61)
+      doc.setTextColor(primaryColor.r, primaryColor.g, primaryColor.b)
       doc.text(title, leftMargin, yPos)
       yPos += lineHeight + 2
-      doc.setDrawColor(45, 90, 61)
+      doc.setDrawColor(accentColor.r, accentColor.g, accentColor.b)
       doc.line(leftMargin, yPos, rightMargin, yPos)
       yPos += 6
     }
@@ -965,9 +1113,9 @@ export default function AnamneseFormular() {
       }
       doc.setFontSize(10)
       doc.setFont("helvetica", "normal")
-      doc.setTextColor(90, 107, 74)
+      doc.setTextColor(accentColor.r, accentColor.g, accentColor.b)
       doc.text(label, leftMargin, yPos)
-      doc.setTextColor(45, 90, 61)
+      doc.setTextColor(primaryColor.r, primaryColor.g, primaryColor.b)
       doc.setFont("helvetica", "bold")
       doc.text(value || "-", leftMargin + 70, yPos)
       yPos += lineHeight
@@ -976,14 +1124,14 @@ export default function AnamneseFormular() {
     // Title
     doc.setFontSize(24)
     doc.setFont("helvetica", "bold")
-    doc.setTextColor(45, 90, 61)
+    doc.setTextColor(primaryColor.r, primaryColor.g, primaryColor.b)
     doc.text("Anamnese Formular", pageWidth / 2, yPos, { align: "center" })
     yPos += 10
     
     // Subtitle with date
     doc.setFontSize(10)
     doc.setFont("helvetica", "normal")
-    doc.setTextColor(90, 107, 74)
+    doc.setTextColor(accentColor.r, accentColor.g, accentColor.b)
     const today = new Date().toLocaleDateString("de-DE")
     doc.text(`Erstellt am: ${today}`, pageWidth / 2, yPos, { align: "center" })
     yPos += sectionGap + 5
@@ -1004,8 +1152,6 @@ export default function AnamneseFormular() {
     if (state.land) addDataRow("Land:", state.land)
     if (state.email) addDataRow("E-Mail:", state.email)
     addDataRow("Telefon:", state.telefon)
-    addDataRow("Mobil:", state.mobil)
-    addDataRow("Gruppe:", state.gruppe)
     yPos += sectionGap
     
     // Gesundheitsdaten Teil 1
@@ -1024,8 +1170,8 @@ export default function AnamneseFormular() {
     
     // Gesundheitsdaten Teil 2
     addSectionHeader("Gesundheitsdaten (Teil 2)")
-    addDataRow("Allergien:", state.allergien)
-    if (state.ernaehrung) addDataRow("Ernährung:", state.ernaehrung)
+    addDataRow("Allergien:", state.allergien.length > 0 ? state.allergien.join(", ") : "-")
+    if (state.ernaehrung.length > 0) addDataRow("Ernährung:", state.ernaehrung.join(", "))
     addDataRow("Krebstherapie:", state.krebstherapie)
     addDataRow("Immunsystem-Hinweis:", state.immunsystem)
     addDataRow("Depressionen:", state.depressionen)
@@ -1054,7 +1200,7 @@ export default function AnamneseFormular() {
     yPos = 20
     doc.setFontSize(10)
     doc.setFont("helvetica", "italic")
-    doc.setTextColor(90, 107, 74)
+    doc.setTextColor(accentColor.r, accentColor.g, accentColor.b)
     doc.text("Dieses Dokument wurde elektronisch erstellt und enthält vertrauliche Gesundheitsdaten.", leftMargin, yPos)
     yPos += lineHeight
     doc.text("Die Daten werden nur für die Dauer der Zusammenarbeit gespeichert.", leftMargin, yPos)
@@ -1222,25 +1368,6 @@ export default function AnamneseFormular() {
                   placeholder="+49 123 456789"
                   value={state.telefon}
                   onChange={(e) => updateState("telefon", e.target.value)}
-                />
-              </FormField>
-              <FormField>
-                <FormLabel htmlFor="mobil">Mobil *</FormLabel>
-                <FormInput
-                  id="mobil"
-                  type="tel"
-                  placeholder="+49 170 1234567"
-                  value={state.mobil}
-                  onChange={(e) => updateState("mobil", e.target.value)}
-                />
-              </FormField>
-              <FormField>
-                <FormLabel htmlFor="gruppe">Gruppe *</FormLabel>
-                <FormInput
-                  id="gruppe"
-                  placeholder="z.B. Firma, Verein..."
-                  value={state.gruppe}
-                  onChange={(e) => updateState("gruppe", e.target.value)}
                 />
               </FormField>
             </FormGrid>
@@ -1450,17 +1577,94 @@ export default function AnamneseFormular() {
               </QuestionDescription>
             </QuestionSection>
             <HealthQuestionGrid>
-              <HealthQuestionCard>
+<HealthQuestionCard>
                 <HealthQuestionLabel>Welche Allergien haben Sie? *</HealthQuestionLabel>
-                <FormSelect
-                  value={state.allergien}
-                  onChange={(e) => updateState("allergien", e.target.value)}
-                >
-                  <option value="">Bitte auswählen</option>
-                  {allergienOptionen.map((option) => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
-                </FormSelect>
+                <MultiSelectContainer ref={allergienRef}>
+                  <MultiSelectTrigger 
+                    type="button"
+                    $hasSelection={state.allergien.length > 0}
+                    onClick={() => setAllergienOpen(!allergienOpen)}
+                  >
+                    <MultiSelectTags>
+                      {state.allergien.length === 0 ? (
+                        <span>Bitte auswählen (Mehrfachauswahl möglich)</span>
+                      ) : (
+                        state.allergien.map(item => (
+                          <MultiSelectTag key={item}>
+                            {item}
+                            <button 
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); removeArrayValue("allergien", item); }}
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </MultiSelectTag>
+                        ))
+                      )}
+                    </MultiSelectTags>
+                    <ChevronDown className="h-4 w-4 text-[#A89454]" />
+                  </MultiSelectTrigger>
+                  <MultiSelectDropdown $isOpen={allergienOpen}>
+                    {allergienOptionen.filter(o => o !== "Mehrere").map((option) => (
+                      <MultiSelectOption 
+                        key={option} 
+                        $isSelected={state.allergien.includes(option)}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={state.allergien.includes(option)}
+                          onChange={() => toggleArrayValue("allergien", option)}
+                        />
+                        <span>{option}</span>
+                      </MultiSelectOption>
+                    ))}
+                  </MultiSelectDropdown>
+                </MultiSelectContainer>
+              </HealthQuestionCard>
+              
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Haben Sie spezielle Ernährungsgewohnheiten? (optional)</HealthQuestionLabel>
+                <MultiSelectContainer ref={ernaehrungRef}>
+                  <MultiSelectTrigger 
+                    type="button"
+                    $hasSelection={state.ernaehrung.length > 0}
+                    onClick={() => setErnaehrungOpen(!ernaehrungOpen)}
+                  >
+                    <MultiSelectTags>
+                      {state.ernaehrung.length === 0 ? (
+                        <span>Bitte auswählen (Mehrfachauswahl möglich)</span>
+                      ) : (
+                        state.ernaehrung.map(item => (
+                          <MultiSelectTag key={item}>
+                            {item}
+                            <button 
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); removeArrayValue("ernaehrung", item); }}
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </MultiSelectTag>
+                        ))
+                      )}
+                    </MultiSelectTags>
+                    <ChevronDown className="h-4 w-4 text-[#A89454]" />
+                  </MultiSelectTrigger>
+                  <MultiSelectDropdown $isOpen={ernaehrungOpen}>
+                    {ernaehrungOptionen.map((option) => (
+                      <MultiSelectOption 
+                        key={option} 
+                        $isSelected={state.ernaehrung.includes(option)}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={state.ernaehrung.includes(option)}
+                          onChange={() => toggleArrayValue("ernaehrung", option)}
+                        />
+                        <span>{option}</span>
+                      </MultiSelectOption>
+                    ))}
+                  </MultiSelectDropdown>
+                </MultiSelectContainer>
               </HealthQuestionCard>
 
               <HealthQuestionCard>
@@ -1906,14 +2110,6 @@ export default function AnamneseFormular() {
                       <span className="label">Telefon:</span>
                       <span className="value">{state.telefon}</span>
                     </OverviewItem>
-                    <OverviewItem>
-                      <span className="label">Mobil:</span>
-                      <span className="value">{state.mobil}</span>
-                    </OverviewItem>
-                    <OverviewItem>
-                      <span className="label">Gruppe:</span>
-                      <span className="value">{state.gruppe}</span>
-                    </OverviewItem>
                   </OverviewGrid>
                 </OverviewSection>
 
@@ -1990,12 +2186,12 @@ export default function AnamneseFormular() {
                   <OverviewGrid>
                     <OverviewItem>
                       <span className="label">Allergien:</span>
-                      <span className="value">{state.allergien}</span>
+                      <span className="value">{state.allergien.join(", ") || "-"}</span>
                     </OverviewItem>
-                    {state.ernaehrung && (
+                    {state.ernaehrung.length > 0 && (
                       <OverviewItem>
                         <span className="label">Ernährung:</span>
-                        <span className="value">{state.ernaehrung}</span>
+                        <span className="value">{state.ernaehrung.join(", ")}</span>
                       </OverviewItem>
                     )}
                     <OverviewItem>
