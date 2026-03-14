@@ -2,16 +2,13 @@
 
 import { useState } from "react"
 import styled from "styled-components"
-import { ChevronLeft, ChevronRight, Check, Edit2, ArrowRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, Check, Edit2, Send, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
 
 // Styled Components
 const Container = styled.div`
@@ -154,15 +151,11 @@ const ProgressBarWrapper = styled.div`
 
 const StepNavigation = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 0.5rem;
   
   @media (min-width: 768px) {
-    grid-template-columns: repeat(5, 1fr);
-  }
-  
-  @media (min-width: 1024px) {
-    grid-template-columns: repeat(9, 1fr);
+    grid-template-columns: repeat(7, 1fr);
   }
 `
 
@@ -228,7 +221,7 @@ const StepButton = styled.button<{
 `
 
 const StepLabel = styled.span<{ $isActive: boolean; $isCompleted: boolean }>`
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   margin-top: 0.5rem;
   text-align: center;
   line-height: 1.2;
@@ -277,7 +270,78 @@ const QuestionDescription = styled.p`
   text-align: center;
 `
 
-const OptionsGrid = styled.div`
+const FormGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  max-width: 64rem;
+  margin: 0 auto;
+  
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+`
+
+const FormField = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`
+
+const FormLabel = styled(Label)`
+  font-size: 1rem;
+  font-weight: 500;
+  color: #2d5a3d;
+`
+
+const FormInput = styled(Input)`
+  font-size: 1rem;
+  padding: 0.75rem;
+  border: 2px solid #e8f0dc;
+  border-radius: 0.5rem;
+  
+  &:focus {
+    border-color: #2d5a3d;
+    outline: none;
+  }
+`
+
+const FormSelect = styled.select`
+  font-size: 1rem;
+  padding: 0.75rem;
+  border: 2px solid #e8f0dc;
+  border-radius: 0.5rem;
+  background: white;
+  cursor: pointer;
+  
+  &:focus {
+    border-color: #2d5a3d;
+    outline: none;
+  }
+`
+
+const ToggleGroup = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`
+
+const ToggleButton = styled.button<{ $isActive: boolean }>`
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 2px solid ${(props) => (props.$isActive ? "#2d5a3d" : "#e8f0dc")};
+  border-radius: 0.5rem;
+  background: ${(props) => (props.$isActive ? "#2d5a3d" : "white")};
+  color: ${(props) => (props.$isActive ? "white" : "#5a6b4a")};
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: #2d5a3d;
+  }
+`
+
+const HealthQuestionGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
@@ -289,145 +353,91 @@ const OptionsGrid = styled.div`
   }
 `
 
-const OptionCard = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+const HealthQuestionCard = styled.div`
   padding: 1rem;
   border: 2px solid #e8f0dc;
   border-radius: 0.75rem;
-  transition: border-color 0.2s ease;
-  
-  &:hover {
-    border-color: rgba(45, 90, 61, 0.3);
-  }
+  background: white;
 `
 
-const OptionCardLarge = styled(OptionCard)`
-  padding: 1.5rem;
+const HealthQuestionLabel = styled.div`
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #2d5a3d;
+  margin-bottom: 0.75rem;
 `
 
-const OptionContent = styled.div`
-  flex: 1;
-  
-  .title {
-    font-size: 1.125rem;
-    font-weight: 500;
-    cursor: pointer;
-    display: block;
-  }
-  
-  .description {
-    font-size: 0.875rem;
-    color: #5a6b4a;
-    margin-top: 0.25rem;
-  }
-`
-
-const PriceOverviewCard = styled.div`
+const OverviewCard = styled.div`
   border: 2px solid rgba(45, 90, 61, 0.2);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   border-radius: 0.5rem;
   background: white;
+  margin-bottom: 2rem;
 `
 
-const PriceHeader = styled.div`
+const OverviewHeader = styled.div`
   background-color: rgba(45, 90, 61, 0.05);
   padding: 1.5rem;
   border-bottom: 1px solid rgba(45, 90, 61, 0.1);
-`
-
-const PriceTitle = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 1.5rem;
   
-  .label {
+  h3 {
+    font-size: 1.5rem;
+    font-weight: bold;
     color: #2d5a3d;
   }
+`
+
+const OverviewContent = styled.div`
+  padding: 1rem;
+`
+
+const OverviewSection = styled.div`
+  padding: 1rem;
+  background-color: rgba(232, 240, 220, 0.3);
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
   
-  .amount {
-    font-size: 1.875rem;
-    font-weight: bold;
-    color: #ff6b35;
+  &:last-child {
+    margin-bottom: 0;
   }
 `
 
-const PriceContent = styled.div`
-  padding: 1rem;
+const OverviewSectionHeader = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  
+  h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #2d5a3d;
+  }
 `
 
-const PriceGrid = styled.div`
+const OverviewGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.75rem;
+  gap: 0.5rem;
   
   @media (min-width: 768px) {
     grid-template-columns: repeat(2, 1fr);
   }
 `
 
-const PriceItem = styled.div`
+const OverviewItem = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem;
-  background-color: rgba(232, 240, 220, 0.3);
-  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  padding: 0.25rem 0;
   
   .label {
-    font-weight: 500;
-    font-size: 0.875rem;
-  }
-  
-  .actions {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  .price {
-    font-weight: bold;
-    font-size: 0.875rem;
-  }
-`
-
-const DetailSection = styled.div`
-  padding: 0.75rem;
-  background-color: rgba(232, 240, 220, 0.3);
-  border-radius: 0.5rem;
-  
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-  }
-  
-  .title {
-    font-weight: 500;
-    font-size: 0.875rem;
-  }
-  
-  .items {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
-  }
-  
-  .item {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.75rem;
     color: #5a6b4a;
   }
   
-  .item-price {
+  .value {
     font-weight: 500;
+    color: #2d5a3d;
   }
 `
 
@@ -457,15 +467,15 @@ const NextButton = styled(Button)`
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   font-size: 1.125rem;
-  background-color: #ff6b35;
+  background-color: #2d5a3d;
   color: white;
   
   &:hover {
-    background-color: rgba(255, 107, 53, 0.9);
+    background-color: rgba(45, 90, 61, 0.9);
   }
 `
 
-const FinalButton = styled(Button)`
+const SubmitButton = styled(Button)`
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -479,114 +489,212 @@ const FinalButton = styled(Button)`
   }
 `
 
-const UrlInputSection = styled.div`
-  margin-top: 2rem;
+const SuccessMessage = styled.div`
+  text-align: center;
+  padding: 3rem;
+  
+  .icon {
+    width: 5rem;
+    height: 5rem;
+    background-color: #2d5a3d;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+  }
+  
+  h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2d5a3d;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    font-size: 1.125rem;
+    color: #5a6b4a;
+    margin-bottom: 2rem;
+  }
+`
+
+const EmailSection = styled.div`
+  max-width: 32rem;
+  margin: 0 auto;
   padding: 1.5rem;
   background-color: rgba(232, 240, 220, 0.5);
   border-radius: 0.75rem;
-  max-width: 64rem;
-  margin-left: auto;
-  margin-right: auto;
   
   .label {
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 500;
+    color: #2d5a3d;
     margin-bottom: 0.5rem;
     display: block;
   }
   
-  input {
-    font-size: 1.125rem;
-    padding: 0.75rem;
-    border: 2px solid #e8f0dc;
+  .input-group {
+    display: flex;
+    gap: 0.5rem;
   }
 `
 
-interface CalculatorState {
-  customerType: string
-  websiteType: string
-  hasExistingWebsite: string
-  existingWebsiteUrl: string
-  contentPages: string[]
-  hasPhotos: string
-  hasTexts: string
-  hasLogo: string
-  features: string[]
-  comments: string
+interface AnamneseState {
+  // Basisdaten
+  vorname: string
+  nachname: string
+  geburtsdatum: string
+  koerpergroesse: string
+  gewicht: string
+  geschlecht: string
+  
+  // Adresse & Kontakt
+  strasse: string
+  plzOrt: string
+  land: string
+  email: string
+  telefon: string
+  mobil: string
+  gruppe: string
+  
+  // Gesundheitsdaten Teil 1
+  rauchen: string
+  hypertonie: string
+  schilddruese: string
+  schlafstoerungen: string
+  diabetes: string
+  sportlicheAktivitaet: string
+  copd: string
+  antidepressiva: string
+  alkohol: string
+  schichtarbeit: string
+  
+  // Gesundheitsdaten Teil 2
+  allergien: string
+  ernaehrung: string
+  krebstherapie: string
+  immunsystem: string
+  depressionen: string
+  gelenkschmerzen: string
+  schmerzen: string
+  
+  // Gesundheitsdaten Teil 3
+  hautprobleme: string
+  passivrauchen: string
+  wasserkonsum: string
+  gesuessteGetraenke: string
+  zuckerkonsum: string
+  
+  // Körpermaße
+  nackenumfang: string
+  hueftumfang: string
+  maxHerzfrequenz: string
+  blutgruppe: string
 }
 
-const initialState: CalculatorState = {
-  customerType: "",
-  websiteType: "",
-  hasExistingWebsite: "",
-  existingWebsiteUrl: "",
-  contentPages: [],
-  hasPhotos: "",
-  hasTexts: "",
-  hasLogo: "",
-  features: [],
-  comments: "",
+const initialState: AnamneseState = {
+  vorname: "",
+  nachname: "",
+  geburtsdatum: "",
+  koerpergroesse: "",
+  gewicht: "",
+  geschlecht: "",
+  strasse: "",
+  plzOrt: "",
+  land: "",
+  email: "",
+  telefon: "",
+  mobil: "",
+  gruppe: "",
+  rauchen: "",
+  hypertonie: "",
+  schilddruese: "",
+  schlafstoerungen: "",
+  diabetes: "",
+  sportlicheAktivitaet: "",
+  copd: "",
+  antidepressiva: "",
+  alkohol: "",
+  schichtarbeit: "",
+  allergien: "",
+  ernaehrung: "",
+  krebstherapie: "",
+  immunsystem: "",
+  depressionen: "",
+  gelenkschmerzen: "",
+  schmerzen: "",
+  hautprobleme: "",
+  passivrauchen: "",
+  wasserkonsum: "",
+  gesuessteGetraenke: "",
+  zuckerkonsum: "",
+  nackenumfang: "",
+  hueftumfang: "",
+  maxHerzfrequenz: "",
+  blutgruppe: "",
 }
 
 const steps = [
-  "Kundentyp",
-  "Website-Art",
-  "Bestehende Website",
-  "Inhalte/Unterseiten",
-  "Fotos/Videos",
-  "Texte",
-  "Logo/Design",
-  "Features",
+  "Basisdaten",
+  "Kontakt",
+  "Gesundheit 1",
+  "Gesundheit 2",
+  "Gesundheit 3",
+  "Körpermaße",
   "Übersicht",
 ]
 
-const pricing = {
-  customerType: {
-    Privatperson: 0,
-    "kleines Unternehmen": 200,
-    "großes Unternehmen": 500,
-  },
-  websiteType: {
-    "One Pager": 800,
-    "Multi Pager": 1500,
-  },
-  hasExistingWebsite: {
-    Ja: -200,
-    Nein: 0,
-  },
-  contentPages: {
-    Home: 0,
-    "Über Uns": 150,
-    "Online Shop": 800,
-    Kontakt: 100,
-    Blog: 300,
-    Portfolio: 250,
-    Impressum: 50,
-    Datenschutz: 50,
-  },
-  hasPhotos: {
-    Ja: 0,
-    Nein: 300,
-  },
-  hasTexts: {
-    Ja: 0,
-    Nein: 400,
-  },
-  hasLogo: {
-    Ja: 0,
-    Nein: 350,
-  },
-  features: {
-    Suchfunktion: 200,
-    "Multi Language": 400,
-    "PDF Download": 150,
-    Zahlungssystem: 600,
-    Buchungssystem: 500,
-    "Social Media Integration": 100,
-    Newsletter: 200,
-    Kontaktformular: 100,
-  },
-}
+const laender = [
+  "Deutschland",
+  "Österreich",
+  "Schweiz",
+  "Belgien",
+  "Niederlande",
+  "Luxemburg",
+  "Frankreich",
+  "Italien",
+  "Spanien",
+  "Andere",
+]
+
+const allergienOptionen = [
+  "Keine",
+  "Pollen",
+  "Hausstaubmilben",
+  "Tierhaare",
+  "Nahrungsmittel",
+  "Medikamente",
+  "Insektengift",
+  "Latex",
+  "Schimmelpilze",
+  "Kontaktallergien",
+  "Mehrere",
+]
+
+const ernaehrungOptionen = [
+  "Keine besonderen",
+  "Vegetarisch",
+  "Vegan",
+  "Glutenfrei",
+  "Laktosefrei",
+  "Halal",
+  "Koscher",
+  "Low Carb",
+  "Ketogen",
+  "Andere",
+]
+
+const blutgruppenOptionen = [
+  "Unbekannt",
+  "A+",
+  "A-",
+  "B+",
+  "B-",
+  "AB+",
+  "AB-",
+  "0+",
+  "0-",
+]
 
 const DimarLogo = () => (
   <LogoContainer>
@@ -600,56 +708,51 @@ const DimarLogo = () => (
   </LogoContainer>
 )
 
-export default function Component() {
+export default function AnamneseFormular() {
   const [currentStep, setCurrentStep] = useState(0)
-  const [state, setState] = useState<CalculatorState>(initialState)
+  const [state, setState] = useState<AnamneseState>(initialState)
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [sendEmail, setSendEmail] = useState("")
+  const [emailSent, setEmailSent] = useState(false)
 
-  const updateState = (key: keyof CalculatorState, value: any) => {
+  const updateState = (key: keyof AnamneseState, value: string) => {
     setState((prev) => ({ ...prev, [key]: value }))
   }
 
-  const calculatePrice = () => {
-    let total = 0
-
-    total += pricing.customerType[state.customerType as keyof typeof pricing.customerType] || 0
-    total += pricing.websiteType[state.websiteType as keyof typeof pricing.websiteType] || 0
-    total += pricing.hasExistingWebsite[state.hasExistingWebsite as keyof typeof pricing.hasExistingWebsite] || 0
-
-    state.contentPages.forEach((page) => {
-      total += pricing.contentPages[page as keyof typeof pricing.contentPages] || 0
-    })
-
-    total += pricing.hasPhotos[state.hasPhotos as keyof typeof pricing.hasPhotos] || 0
-    total += pricing.hasTexts[state.hasTexts as keyof typeof pricing.hasTexts] || 0
-    total += pricing.hasLogo[state.hasLogo as keyof typeof pricing.hasLogo] || 0
-
-    state.features.forEach((feature) => {
-      total += pricing.features[feature as keyof typeof pricing.features] || 0
-    })
-
-    return Math.max(total, 500) // Mindestpreis
+  // Berechne maximale Herzfrequenz basierend auf Geburtsdatum
+  const calculateMaxHeartRate = () => {
+    if (!state.geburtsdatum) return ""
+    const birthDate = new Date(state.geburtsdatum)
+    const today = new Date()
+    let age = today.getFullYear() - birthDate.getFullYear()
+    const monthDiff = today.getMonth() - birthDate.getMonth()
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--
+    }
+    return String(220 - age)
   }
 
   const isStepCompleted = (stepIndex: number) => {
     switch (stepIndex) {
       case 0:
-        return state.customerType !== ""
+        return state.vorname !== "" && state.nachname !== "" && state.geburtsdatum !== "" && 
+               state.koerpergroesse !== "" && state.gewicht !== "" && state.geschlecht !== ""
       case 1:
-        return state.websiteType !== ""
+        return state.telefon !== "" && state.mobil !== "" && state.gruppe !== ""
       case 2:
-        return state.hasExistingWebsite !== ""
+        return state.rauchen !== "" && state.hypertonie !== "" && state.schilddruese !== "" &&
+               state.schlafstoerungen !== "" && state.diabetes !== "" && state.sportlicheAktivitaet !== "" &&
+               state.copd !== "" && state.antidepressiva !== "" && state.alkohol !== "" && state.schichtarbeit !== ""
       case 3:
-        return state.contentPages.length > 0
+        return state.allergien !== "" && state.krebstherapie !== "" && state.immunsystem !== "" &&
+               state.depressionen !== "" && state.gelenkschmerzen !== ""
       case 4:
-        return state.hasPhotos !== ""
+        return state.hautprobleme !== "" && state.passivrauchen !== "" && state.wasserkonsum !== "" &&
+               state.gesuessteGetraenke !== "" && state.zuckerkonsum !== ""
       case 5:
-        return state.hasTexts !== ""
+        return state.nackenumfang !== "" && state.hueftumfang !== ""
       case 6:
-        return state.hasLogo !== ""
-      case 7:
-        return true // Features sind optional
-      case 8:
-        return true // Overview ist immer "completed"
+        return true
       default:
         return false
     }
@@ -675,58 +778,96 @@ export default function Component() {
     setCurrentStep(stepIndex)
   }
 
+  const handleSubmit = () => {
+    setIsSubmitted(true)
+  }
+
+  const handleSendEmail = () => {
+    if (sendEmail) {
+      // Hier würde normalerweise die E-Mail-Logik implementiert werden
+      setEmailSent(true)
+    }
+  }
+
   const renderStep = () => {
     switch (currentStep) {
       case 0:
         return (
           <StepContent>
             <QuestionSection>
-              <QuestionTitle>Wer bist du?</QuestionTitle>
+              <QuestionTitle>Basisdaten</QuestionTitle>
               <QuestionDescription>
-                Wähle deinen Kundentyp aus, um ein passendes Angebot zu erhalten
+                Bitte geben Sie Ihre persönlichen Grunddaten ein
               </QuestionDescription>
             </QuestionSection>
-            <OptionsGrid>
-              <RadioGroup
-                value={state.customerType}
-                onValueChange={(value) => updateState("customerType", value)}
-                className="contents"
-              >
-                <OptionCard>
-                  <RadioGroupItem value="Privatperson" id="privatperson" className="border-primary" />
-                  <OptionContent>
-                    <Label htmlFor="privatperson" className="title">
-                      Privatperson
-                    </Label>
-                  </OptionContent>
-                  <Badge variant="outline" className="bg-muted">
-                    Basis
-                  </Badge>
-                </OptionCard>
-                <OptionCard>
-                  <RadioGroupItem value="kleines Unternehmen" id="kleines-unternehmen" className="border-primary" />
-                  <OptionContent>
-                    <Label htmlFor="kleines-unternehmen" className="title">
-                      Kleines Unternehmen
-                    </Label>
-                  </OptionContent>
-                  <Badge variant="outline" className="bg-accent/10 text-accent border-accent/30">
-                    +200€
-                  </Badge>
-                </OptionCard>
-                <OptionCard>
-                  <RadioGroupItem value="großes Unternehmen" id="grosses-unternehmen" className="border-primary" />
-                  <OptionContent>
-                    <Label htmlFor="grosses-unternehmen" className="title">
-                      Großes Unternehmen
-                    </Label>
-                  </OptionContent>
-                  <Badge variant="outline" className="bg-accent/10 text-accent border-accent/30">
-                    +500€
-                  </Badge>
-                </OptionCard>
-              </RadioGroup>
-            </OptionsGrid>
+            <FormGrid>
+              <FormField>
+                <FormLabel htmlFor="vorname">Vorname *</FormLabel>
+                <FormInput
+                  id="vorname"
+                  placeholder="Max"
+                  value={state.vorname}
+                  onChange={(e) => updateState("vorname", e.target.value)}
+                />
+              </FormField>
+              <FormField>
+                <FormLabel htmlFor="nachname">Nachname *</FormLabel>
+                <FormInput
+                  id="nachname"
+                  placeholder="Mustermann"
+                  value={state.nachname}
+                  onChange={(e) => updateState("nachname", e.target.value)}
+                />
+              </FormField>
+              <FormField>
+                <FormLabel htmlFor="geburtsdatum">Geburtsdatum *</FormLabel>
+                <FormInput
+                  id="geburtsdatum"
+                  type="date"
+                  value={state.geburtsdatum}
+                  onChange={(e) => updateState("geburtsdatum", e.target.value)}
+                />
+              </FormField>
+              <FormField>
+                <FormLabel htmlFor="geschlecht">Biologisches Geschlecht *</FormLabel>
+                <ToggleGroup>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.geschlecht === "Männlich"}
+                    onClick={() => updateState("geschlecht", "Männlich")}
+                  >
+                    Männlich
+                  </ToggleButton>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.geschlecht === "Weiblich"}
+                    onClick={() => updateState("geschlecht", "Weiblich")}
+                  >
+                    Weiblich
+                  </ToggleButton>
+                </ToggleGroup>
+              </FormField>
+              <FormField>
+                <FormLabel htmlFor="koerpergroesse">Körpergröße (cm) *</FormLabel>
+                <FormInput
+                  id="koerpergroesse"
+                  type="number"
+                  placeholder="175"
+                  value={state.koerpergroesse}
+                  onChange={(e) => updateState("koerpergroesse", e.target.value)}
+                />
+              </FormField>
+              <FormField>
+                <FormLabel htmlFor="gewicht">Gewicht (kg) *</FormLabel>
+                <FormInput
+                  id="gewicht"
+                  type="number"
+                  placeholder="70"
+                  value={state.gewicht}
+                  onChange={(e) => updateState("gewicht", e.target.value)}
+                />
+              </FormField>
+            </FormGrid>
           </StepContent>
         )
 
@@ -734,43 +875,83 @@ export default function Component() {
         return (
           <StepContent>
             <QuestionSection>
-              <QuestionTitle>Was möchtest du machen?</QuestionTitle>
+              <QuestionTitle>Adresse & Kontakt</QuestionTitle>
               <QuestionDescription>
-                Wähle den Website-Typ aus, der am besten zu deinen Bedürfnissen passt
+                Wie können wir Sie erreichen?
               </QuestionDescription>
             </QuestionSection>
-            <OptionsGrid>
-              <RadioGroup
-                value={state.websiteType}
-                onValueChange={(value) => updateState("websiteType", value)}
-                className="contents"
-              >
-                <OptionCardLarge>
-                  <RadioGroupItem value="One Pager" id="one-pager" className="border-primary" />
-                  <OptionContent>
-                    <Label htmlFor="one-pager" className="title">
-                      One Pager
-                    </Label>
-                    <p className="description">Alle Inhalte auf einer Seite - perfekt für einfache Präsentationen</p>
-                  </OptionContent>
-                  <Badge variant="outline" className="bg-accent/10 text-accent border-accent/30">
-                    800€
-                  </Badge>
-                </OptionCardLarge>
-                <OptionCardLarge>
-                  <RadioGroupItem value="Multi Pager" id="multi-pager" className="border-primary" />
-                  <OptionContent>
-                    <Label htmlFor="multi-pager" className="title">
-                      Multi Pager
-                    </Label>
-                    <p className="description">Mehrere Unterseiten - ideal für umfangreiche Websites</p>
-                  </OptionContent>
-                  <Badge variant="outline" className="bg-accent/10 text-accent border-accent/30">
-                    1.500€
-                  </Badge>
-                </OptionCardLarge>
-              </RadioGroup>
-            </OptionsGrid>
+            <FormGrid>
+              <FormField>
+                <FormLabel htmlFor="strasse">Straße + Nr. (optional)</FormLabel>
+                <FormInput
+                  id="strasse"
+                  placeholder="Musterstraße 123"
+                  value={state.strasse}
+                  onChange={(e) => updateState("strasse", e.target.value)}
+                />
+              </FormField>
+              <FormField>
+                <FormLabel htmlFor="plzOrt">PLZ + Ort (optional)</FormLabel>
+                <FormInput
+                  id="plzOrt"
+                  placeholder="12345 Musterstadt"
+                  value={state.plzOrt}
+                  onChange={(e) => updateState("plzOrt", e.target.value)}
+                />
+              </FormField>
+              <FormField>
+                <FormLabel htmlFor="land">Land (optional)</FormLabel>
+                <FormSelect
+                  id="land"
+                  value={state.land}
+                  onChange={(e) => updateState("land", e.target.value)}
+                >
+                  <option value="">Bitte auswählen</option>
+                  {laender.map((land) => (
+                    <option key={land} value={land}>{land}</option>
+                  ))}
+                </FormSelect>
+              </FormField>
+              <FormField>
+                <FormLabel htmlFor="email">E-Mail Adresse (optional)</FormLabel>
+                <FormInput
+                  id="email"
+                  type="email"
+                  placeholder="max@beispiel.de"
+                  value={state.email}
+                  onChange={(e) => updateState("email", e.target.value)}
+                />
+              </FormField>
+              <FormField>
+                <FormLabel htmlFor="telefon">Telefon *</FormLabel>
+                <FormInput
+                  id="telefon"
+                  type="tel"
+                  placeholder="+49 123 456789"
+                  value={state.telefon}
+                  onChange={(e) => updateState("telefon", e.target.value)}
+                />
+              </FormField>
+              <FormField>
+                <FormLabel htmlFor="mobil">Mobil *</FormLabel>
+                <FormInput
+                  id="mobil"
+                  type="tel"
+                  placeholder="+49 170 1234567"
+                  value={state.mobil}
+                  onChange={(e) => updateState("mobil", e.target.value)}
+                />
+              </FormField>
+              <FormField>
+                <FormLabel htmlFor="gruppe">Gruppe *</FormLabel>
+                <FormInput
+                  id="gruppe"
+                  placeholder="z.B. Firma, Verein..."
+                  value={state.gruppe}
+                  onChange={(e) => updateState("gruppe", e.target.value)}
+                />
+              </FormField>
+            </FormGrid>
           </StepContent>
         )
 
@@ -778,51 +959,192 @@ export default function Component() {
         return (
           <StepContent>
             <QuestionSection>
-              <QuestionTitle>Hast du schon eine Website?</QuestionTitle>
+              <QuestionTitle>Gesundheitsdaten</QuestionTitle>
               <QuestionDescription>
-                Falls ja, können wir bestehende Inhalte übernehmen und sparen Zeit
+                Allgemeine Gesundheitsfragen (Teil 1)
               </QuestionDescription>
             </QuestionSection>
-            <OptionsGrid>
-              <RadioGroup
-                value={state.hasExistingWebsite}
-                onValueChange={(value) => updateState("hasExistingWebsite", value)}
-                className="contents"
-              >
-                <OptionCard>
-                  <RadioGroupItem value="Ja" id="website-ja" className="border-primary" />
-                  <OptionContent>
-                    <Label htmlFor="website-ja" className="title">
-                      Ja, ich habe bereits eine Website
-                    </Label>
-                  </OptionContent>
-                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                    -200€
-                  </Badge>
-                </OptionCard>
-                <OptionCard>
-                  <RadioGroupItem value="Nein" id="website-nein" className="border-primary" />
-                  <OptionContent>
-                    <Label htmlFor="website-nein" className="title">
-                      Nein, das wird meine erste Website
-                    </Label>
-                  </OptionContent>
-                </OptionCard>
-              </RadioGroup>
-            </OptionsGrid>
-            {state.hasExistingWebsite === "Ja" && (
-              <UrlInputSection>
-                <Label htmlFor="website-url" className="label">
-                  Website URL:
-                </Label>
-                <Input
-                  id="website-url"
-                  placeholder="https://deine-website.de"
-                  value={state.existingWebsiteUrl}
-                  onChange={(e) => updateState("existingWebsiteUrl", e.target.value)}
-                />
-              </UrlInputSection>
-            )}
+            <HealthQuestionGrid>
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Rauchen Sie? *</HealthQuestionLabel>
+                <ToggleGroup>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.rauchen === "Ja"}
+                    onClick={() => updateState("rauchen", "Ja")}
+                  >
+                    Ja
+                  </ToggleButton>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.rauchen === "Nein"}
+                    onClick={() => updateState("rauchen", "Nein")}
+                  >
+                    Nein
+                  </ToggleButton>
+                </ToggleGroup>
+              </HealthQuestionCard>
+
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Leiden Sie unter Hypertonie/Bluthochdruck? *</HealthQuestionLabel>
+                <ToggleGroup>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.hypertonie === "Ja"}
+                    onClick={() => updateState("hypertonie", "Ja")}
+                  >
+                    Ja
+                  </ToggleButton>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.hypertonie === "Nein"}
+                    onClick={() => updateState("hypertonie", "Nein")}
+                  >
+                    Nein
+                  </ToggleButton>
+                </ToggleGroup>
+              </HealthQuestionCard>
+
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Wie ist Ihre Schilddrüsenfunktion? *</HealthQuestionLabel>
+                <FormSelect
+                  value={state.schilddruese}
+                  onChange={(e) => updateState("schilddruese", e.target.value)}
+                >
+                  <option value="">Bitte auswählen</option>
+                  <option value="Normal">Normal</option>
+                  <option value="Unterfunktion">Unterfunktion</option>
+                  <option value="Überfunktion">Überfunktion</option>
+                </FormSelect>
+              </HealthQuestionCard>
+
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Haben Sie Schlafstörungen? *</HealthQuestionLabel>
+                <ToggleGroup>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.schlafstoerungen === "Ja"}
+                    onClick={() => updateState("schlafstoerungen", "Ja")}
+                  >
+                    Ja
+                  </ToggleButton>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.schlafstoerungen === "Nein"}
+                    onClick={() => updateState("schlafstoerungen", "Nein")}
+                  >
+                    Nein
+                  </ToggleButton>
+                </ToggleGroup>
+              </HealthQuestionCard>
+
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Leiden Sie unter Diabetes? *</HealthQuestionLabel>
+                <ToggleGroup>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.diabetes === "Ja"}
+                    onClick={() => updateState("diabetes", "Ja")}
+                  >
+                    Ja
+                  </ToggleButton>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.diabetes === "Nein"}
+                    onClick={() => updateState("diabetes", "Nein")}
+                  >
+                    Nein
+                  </ToggleButton>
+                </ToggleGroup>
+              </HealthQuestionCard>
+
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Wie beschreiben Sie Ihre sportliche Aktivität? *</HealthQuestionLabel>
+                <FormSelect
+                  value={state.sportlicheAktivitaet}
+                  onChange={(e) => updateState("sportlicheAktivitaet", e.target.value)}
+                >
+                  <option value="">Bitte auswählen</option>
+                  <option value="Athlet">Athlet</option>
+                  <option value="Reguläres Training">Reguläres Training</option>
+                  <option value="Leicht trainiert">Leicht trainiert</option>
+                  <option value="Untrainiert">Untrainiert</option>
+                </FormSelect>
+              </HealthQuestionCard>
+
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Leiden Sie unter COPD? *</HealthQuestionLabel>
+                <ToggleGroup>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.copd === "Ja"}
+                    onClick={() => updateState("copd", "Ja")}
+                  >
+                    Ja
+                  </ToggleButton>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.copd === "Nein"}
+                    onClick={() => updateState("copd", "Nein")}
+                  >
+                    Nein
+                  </ToggleButton>
+                </ToggleGroup>
+              </HealthQuestionCard>
+
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Nehmen Sie Antidepressiva? *</HealthQuestionLabel>
+                <ToggleGroup>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.antidepressiva === "Ja"}
+                    onClick={() => updateState("antidepressiva", "Ja")}
+                  >
+                    Ja
+                  </ToggleButton>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.antidepressiva === "Nein"}
+                    onClick={() => updateState("antidepressiva", "Nein")}
+                  >
+                    Nein
+                  </ToggleButton>
+                </ToggleGroup>
+              </HealthQuestionCard>
+
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Trinken Sie Alkohol? *</HealthQuestionLabel>
+                <FormSelect
+                  value={state.alkohol}
+                  onChange={(e) => updateState("alkohol", e.target.value)}
+                >
+                  <option value="">Bitte auswählen</option>
+                  <option value="Nie">Nie</option>
+                  <option value="Gelegentlich">Gelegentlich</option>
+                  <option value="Regelmäßig">Regelmäßig</option>
+                </FormSelect>
+              </HealthQuestionCard>
+
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Arbeiten Sie im Schicht- oder Nachtdienst? *</HealthQuestionLabel>
+                <ToggleGroup>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.schichtarbeit === "Ja"}
+                    onClick={() => updateState("schichtarbeit", "Ja")}
+                  >
+                    Ja
+                  </ToggleButton>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.schichtarbeit === "Nein"}
+                    onClick={() => updateState("schichtarbeit", "Nein")}
+                  >
+                    Nein
+                  </ToggleButton>
+                </ToggleGroup>
+              </HealthQuestionCard>
+            </HealthQuestionGrid>
           </StepContent>
         )
 
@@ -830,44 +1152,138 @@ export default function Component() {
         return (
           <StepContent>
             <QuestionSection>
-              <QuestionTitle>
-                {state.websiteType === "One Pager"
-                  ? "Welche Inhalte möchtest du haben?"
-                  : "Welche Unterseiten möchtest du haben?"}
-              </QuestionTitle>
+              <QuestionTitle>Gesundheitsdaten</QuestionTitle>
               <QuestionDescription>
-                Wähle alle gewünschten {state.websiteType === "One Pager" ? "Inhalte" : "Unterseiten"} aus
+                Weitere Gesundheitsfragen (Teil 2)
               </QuestionDescription>
             </QuestionSection>
-            <OptionsGrid>
-              {Object.keys(pricing.contentPages).map((page) => (
-                <OptionCard key={page}>
-                  <Checkbox
-                    id={page}
-                    checked={state.contentPages.includes(page)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        updateState("contentPages", [...state.contentPages, page])
-                      } else {
-                        updateState(
-                          "contentPages",
-                          state.contentPages.filter((p) => p !== page),
-                        )
-                      }
-                    }}
-                    className="border-primary"
-                  />
-                  <OptionContent>
-                    <Label htmlFor={page} className="title">
-                      {page}
-                    </Label>
-                  </OptionContent>
-                  <Badge variant="outline" className="bg-accent/10 text-accent border-accent/30">
-                    +{pricing.contentPages[page as keyof typeof pricing.contentPages]}€
-                  </Badge>
-                </OptionCard>
-              ))}
-            </OptionsGrid>
+            <HealthQuestionGrid>
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Welche Allergien haben Sie? *</HealthQuestionLabel>
+                <FormSelect
+                  value={state.allergien}
+                  onChange={(e) => updateState("allergien", e.target.value)}
+                >
+                  <option value="">Bitte auswählen</option>
+                  {allergienOptionen.map((option) => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </FormSelect>
+              </HealthQuestionCard>
+
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Haben Sie spezielle Ernährungsgewohnheiten? (optional)</HealthQuestionLabel>
+                <FormSelect
+                  value={state.ernaehrung}
+                  onChange={(e) => updateState("ernaehrung", e.target.value)}
+                >
+                  <option value="">Bitte auswählen</option>
+                  {ernaehrungOptionen.map((option) => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </FormSelect>
+              </HealthQuestionCard>
+
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Wird derzeit eine Krebstherapie bei Ihnen durchgeführt? *</HealthQuestionLabel>
+                <ToggleGroup>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.krebstherapie === "Ja"}
+                    onClick={() => updateState("krebstherapie", "Ja")}
+                  >
+                    Ja
+                  </ToggleButton>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.krebstherapie === "Nein"}
+                    onClick={() => updateState("krebstherapie", "Nein")}
+                  >
+                    Nein
+                  </ToggleButton>
+                </ToggleGroup>
+              </HealthQuestionCard>
+
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Könnte eine Stärkung Ihres Immunsystems negative Folgen haben? (Transplantationen, Immunsuppressiva etc.) *</HealthQuestionLabel>
+                <ToggleGroup>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.immunsystem === "Ja"}
+                    onClick={() => updateState("immunsystem", "Ja")}
+                  >
+                    Ja
+                  </ToggleButton>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.immunsystem === "Nein"}
+                    onClick={() => updateState("immunsystem", "Nein")}
+                  >
+                    Nein
+                  </ToggleButton>
+                </ToggleGroup>
+              </HealthQuestionCard>
+
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Leiden Sie unter Depressionen? *</HealthQuestionLabel>
+                <ToggleGroup>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.depressionen === "Ja"}
+                    onClick={() => updateState("depressionen", "Ja")}
+                  >
+                    Ja
+                  </ToggleButton>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.depressionen === "Nein"}
+                    onClick={() => updateState("depressionen", "Nein")}
+                  >
+                    Nein
+                  </ToggleButton>
+                </ToggleGroup>
+              </HealthQuestionCard>
+
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Haben Sie Gelenkschmerzen? *</HealthQuestionLabel>
+                <ToggleGroup>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.gelenkschmerzen === "Ja"}
+                    onClick={() => updateState("gelenkschmerzen", "Ja")}
+                  >
+                    Ja
+                  </ToggleButton>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.gelenkschmerzen === "Nein"}
+                    onClick={() => updateState("gelenkschmerzen", "Nein")}
+                  >
+                    Nein
+                  </ToggleButton>
+                </ToggleGroup>
+              </HealthQuestionCard>
+
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Haben Sie Schmerzen? (optional)</HealthQuestionLabel>
+                <ToggleGroup>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.schmerzen === "Ja"}
+                    onClick={() => updateState("schmerzen", "Ja")}
+                  >
+                    Ja
+                  </ToggleButton>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.schmerzen === "Nein"}
+                    onClick={() => updateState("schmerzen", "Nein")}
+                  >
+                    Nein
+                  </ToggleButton>
+                </ToggleGroup>
+              </HealthQuestionCard>
+            </HealthQuestionGrid>
           </StepContent>
         )
 
@@ -875,40 +1291,112 @@ export default function Component() {
         return (
           <StepContent>
             <QuestionSection>
-              <QuestionTitle>Hast du schon verwendbare Fotos/Videos?</QuestionTitle>
+              <QuestionTitle>Gesundheitsdaten</QuestionTitle>
               <QuestionDescription>
-                Professionelle Bilder sind wichtig für eine ansprechende Website
+                Lebensstil und Gewohnheiten (Teil 3)
               </QuestionDescription>
             </QuestionSection>
-            <OptionsGrid>
-              <RadioGroup
-                value={state.hasPhotos}
-                onValueChange={(value) => updateState("hasPhotos", value)}
-                className="contents"
-              >
-                <OptionCardLarge>
-                  <RadioGroupItem value="Ja" id="photos-ja" className="border-primary" />
-                  <OptionContent>
-                    <Label htmlFor="photos-ja" className="title">
-                      Ja, ich habe bereits Fotos/Videos
-                    </Label>
-                    <p className="description">Perfekt! Wir können deine vorhandenen Medien verwenden</p>
-                  </OptionContent>
-                </OptionCardLarge>
-                <OptionCardLarge>
-                  <RadioGroupItem value="Nein" id="photos-nein" className="border-primary" />
-                  <OptionContent>
-                    <Label htmlFor="photos-nein" className="title">
-                      Nein, ich benötige Unterstützung
-                    </Label>
-                    <p className="description">Wir erstellen oder beschaffen professionelle Bilder für dich</p>
-                  </OptionContent>
-                  <Badge variant="outline" className="bg-accent/10 text-accent border-accent/30">
-                    +300€
-                  </Badge>
-                </OptionCardLarge>
-              </RadioGroup>
-            </OptionsGrid>
+            <HealthQuestionGrid>
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Leiden Sie unter Hautproblemen? *</HealthQuestionLabel>
+                <ToggleGroup>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.hautprobleme === "Ja"}
+                    onClick={() => updateState("hautprobleme", "Ja")}
+                  >
+                    Ja
+                  </ToggleButton>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.hautprobleme === "Nein"}
+                    onClick={() => updateState("hautprobleme", "Nein")}
+                  >
+                    Nein
+                  </ToggleButton>
+                </ToggleGroup>
+              </HealthQuestionCard>
+
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Wird in Ihrem Umfeld geraucht? *</HealthQuestionLabel>
+                <ToggleGroup>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.passivrauchen === "Ja"}
+                    onClick={() => updateState("passivrauchen", "Ja")}
+                  >
+                    Ja
+                  </ToggleButton>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.passivrauchen === "Nein"}
+                    onClick={() => updateState("passivrauchen", "Nein")}
+                  >
+                    Nein
+                  </ToggleButton>
+                </ToggleGroup>
+              </HealthQuestionCard>
+
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Trinken Sie weniger als 1,5 Liter Wasser pro Tag? *</HealthQuestionLabel>
+                <ToggleGroup>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.wasserkonsum === "Ja"}
+                    onClick={() => updateState("wasserkonsum", "Ja")}
+                  >
+                    Ja
+                  </ToggleButton>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.wasserkonsum === "Nein"}
+                    onClick={() => updateState("wasserkonsum", "Nein")}
+                  >
+                    Nein
+                  </ToggleButton>
+                </ToggleGroup>
+              </HealthQuestionCard>
+
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Trinken Sie mehr als 1 Glas gesüßte Getränke am Tag? *</HealthQuestionLabel>
+                <ToggleGroup>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.gesuessteGetraenke === "Ja"}
+                    onClick={() => updateState("gesuessteGetraenke", "Ja")}
+                  >
+                    Ja
+                  </ToggleButton>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.gesuessteGetraenke === "Nein"}
+                    onClick={() => updateState("gesuessteGetraenke", "Nein")}
+                  >
+                    Nein
+                  </ToggleButton>
+                </ToggleGroup>
+              </HealthQuestionCard>
+
+              <HealthQuestionCard>
+                <HealthQuestionLabel>Haben Sie einen erhöhten Zuckerkonsum (mehr als 6 Teelöffel/Tag)? *</HealthQuestionLabel>
+                <ToggleGroup>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.zuckerkonsum === "Ja"}
+                    onClick={() => updateState("zuckerkonsum", "Ja")}
+                  >
+                    Ja
+                  </ToggleButton>
+                  <ToggleButton
+                    type="button"
+                    $isActive={state.zuckerkonsum === "Nein"}
+                    onClick={() => updateState("zuckerkonsum", "Nein")}
+                  >
+                    Nein
+                  </ToggleButton>
+                </ToggleGroup>
+              </HealthQuestionCard>
+            </HealthQuestionGrid>
           </StepContent>
         )
 
@@ -916,312 +1404,387 @@ export default function Component() {
         return (
           <StepContent>
             <QuestionSection>
-              <QuestionTitle>Hast du schon verwendbare Texte?</QuestionTitle>
-              <QuestionDescription>Gute Texte sind entscheidend für den Erfolg deiner Website</QuestionDescription>
+              <QuestionTitle>Körpermaße</QuestionTitle>
+              <QuestionDescription>
+                Zusätzliche Körpermaße für die Analyse
+              </QuestionDescription>
             </QuestionSection>
-            <OptionsGrid>
-              <RadioGroup
-                value={state.hasTexts}
-                onValueChange={(value) => updateState("hasTexts", value)}
-                className="contents"
-              >
-                <OptionCardLarge>
-                  <RadioGroupItem value="Ja" id="texts-ja" className="border-primary" />
-                  <OptionContent>
-                    <Label htmlFor="texts-ja" className="title">
-                      Ja, ich habe bereits Texte
-                    </Label>
-                    <p className="description">Großartig! Wir können deine vorhandenen Inhalte verwenden</p>
-                  </OptionContent>
-                </OptionCardLarge>
-                <OptionCardLarge>
-                  <RadioGroupItem value="Nein" id="texts-nein" className="border-primary" />
-                  <OptionContent>
-                    <Label htmlFor="texts-nein" className="title">
-                      Nein, ich benötige Texterstellung
-                    </Label>
-                    <p className="description">Wir erstellen professionelle, SEO-optimierte Texte für dich</p>
-                  </OptionContent>
-                  <Badge variant="outline" className="bg-accent/10 text-accent border-accent/30">
-                    +400€
-                  </Badge>
-                </OptionCardLarge>
-              </RadioGroup>
-            </OptionsGrid>
+            <FormGrid>
+              <FormField>
+                <FormLabel htmlFor="nackenumfang">Nackenumfang (cm) *</FormLabel>
+                <FormInput
+                  id="nackenumfang"
+                  type="number"
+                  placeholder="38"
+                  value={state.nackenumfang}
+                  onChange={(e) => updateState("nackenumfang", e.target.value)}
+                />
+              </FormField>
+              <FormField>
+                <FormLabel htmlFor="hueftumfang">Hüftumfang (cm) *</FormLabel>
+                <FormInput
+                  id="hueftumfang"
+                  type="number"
+                  placeholder="95"
+                  value={state.hueftumfang}
+                  onChange={(e) => updateState("hueftumfang", e.target.value)}
+                />
+              </FormField>
+              <FormField>
+                <FormLabel htmlFor="maxHerzfrequenz">Maximale Herzfrequenz (berechnet)</FormLabel>
+                <FormInput
+                  id="maxHerzfrequenz"
+                  type="text"
+                  value={calculateMaxHeartRate() ? `${calculateMaxHeartRate()} bpm` : "Wird aus Geburtsdatum berechnet"}
+                  disabled
+                  style={{ backgroundColor: "#f4f7e8" }}
+                />
+              </FormField>
+              <FormField>
+                <FormLabel htmlFor="blutgruppe">Blutgruppe (optional)</FormLabel>
+                <FormSelect
+                  id="blutgruppe"
+                  value={state.blutgruppe}
+                  onChange={(e) => updateState("blutgruppe", e.target.value)}
+                >
+                  <option value="">Bitte auswählen</option>
+                  {blutgruppenOptionen.map((option) => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </FormSelect>
+              </FormField>
+            </FormGrid>
           </StepContent>
         )
 
       case 6:
-        return (
-          <StepContent>
-            <QuestionSection>
-              <QuestionTitle>Hast du schon ein Firmenlogo oder Design-Konzept?</QuestionTitle>
-              <QuestionDescription>Ein einheitliches Design ist wichtig für deine Markenidentität</QuestionDescription>
-            </QuestionSection>
-            <OptionsGrid>
-              <RadioGroup
-                value={state.hasLogo}
-                onValueChange={(value) => updateState("hasLogo", value)}
-                className="contents"
-              >
-                <OptionCardLarge>
-                  <RadioGroupItem value="Ja" id="logo-ja" className="border-primary" />
-                  <OptionContent>
-                    <Label htmlFor="logo-ja" className="title">
-                      Ja, ich habe bereits ein Logo/Design
-                    </Label>
-                    <p className="description">Perfekt! Wir verwenden dein bestehendes Corporate Design</p>
-                  </OptionContent>
-                </OptionCardLarge>
-                <OptionCardLarge>
-                  <RadioGroupItem value="Nein" id="logo-nein" className="border-primary" />
-                  <OptionContent>
-                    <Label htmlFor="logo-nein" className="title">
-                      Nein, ich benötige ein Design-Konzept
-                    </Label>
-                    <p className="description">Wir entwickeln ein individuelles Design-Konzept für dich</p>
-                  </OptionContent>
-                  <Badge variant="outline" className="bg-accent/10 text-accent border-accent/30">
-                    +350€
-                  </Badge>
-                </OptionCardLarge>
-              </RadioGroup>
-            </OptionsGrid>
-          </StepContent>
-        )
+        if (isSubmitted) {
+          return (
+            <StepContent>
+              <SuccessMessage>
+                <div className="icon">
+                  <Check className="h-10 w-10 text-white" />
+                </div>
+                <h2>Formular erfolgreich übermittelt!</h2>
+                <p>Vielen Dank für Ihre Angaben. Ihre Daten wurden erfolgreich gespeichert.</p>
+                
+                {!emailSent ? (
+                  <EmailSection>
+                    <label className="label" htmlFor="sendEmail">
+                      Möchten Sie eine Kopie Ihrer Auswahlen per E-Mail erhalten?
+                    </label>
+                    <div className="input-group">
+                      <FormInput
+                        id="sendEmail"
+                        type="email"
+                        placeholder="ihre@email.de"
+                        value={sendEmail}
+                        onChange={(e) => setSendEmail(e.target.value)}
+                      />
+                      <Button
+                        onClick={handleSendEmail}
+                        disabled={!sendEmail}
+                        style={{ backgroundColor: "#2d5a3d", color: "white" }}
+                      >
+                        <Mail className="h-4 w-4 mr-2" />
+                        Senden
+                      </Button>
+                    </div>
+                  </EmailSection>
+                ) : (
+                  <Card className="max-w-md mx-auto border-2 border-green-200 bg-green-50">
+                    <CardContent className="pt-6 text-center">
+                      <Check className="h-8 w-8 text-green-600 mx-auto mb-2" />
+                      <p className="text-green-700 font-medium">
+                        E-Mail wurde an {sendEmail} gesendet!
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </SuccessMessage>
+            </StepContent>
+          )
+        }
 
-      case 7:
         return (
           <StepContent>
             <QuestionSection>
-              <QuestionTitle>Hast du noch besondere Feature-Wünsche?</QuestionTitle>
+              <QuestionTitle>Übersicht Ihrer Angaben</QuestionTitle>
               <QuestionDescription>
-                Wähle zusätzliche Funktionen aus, die deine Website noch besser machen
-              </QuestionDescription>
-            </QuestionSection>
-            <OptionsGrid>
-              {Object.keys(pricing.features).map((feature) => (
-                <OptionCard key={feature}>
-                  <Checkbox
-                    id={feature}
-                    checked={state.features.includes(feature)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        updateState("features", [...state.features, feature])
-                      } else {
-                        updateState(
-                          "features",
-                          state.features.filter((f) => f !== feature),
-                        )
-                      }
-                    }}
-                    className="border-primary"
-                  />
-                  <OptionContent>
-                    <Label htmlFor={feature} className="title">
-                      {feature}
-                    </Label>
-                  </OptionContent>
-                  <Badge variant="outline" className="bg-accent/10 text-accent border-accent/30">
-                    +{pricing.features[feature as keyof typeof pricing.features]}€
-                  </Badge>
-                </OptionCard>
-              ))}
-            </OptionsGrid>
-          </StepContent>
-        )
-
-      case 8:
-        return (
-          <StepContent>
-            <QuestionSection>
-              <QuestionTitle>Dein individuelles Angebot</QuestionTitle>
-              <QuestionDescription>
-                Hier ist eine Übersicht deiner Auswahl und des kalkulierten Preises
+                Bitte überprüfen Sie Ihre Eingaben vor dem Absenden
               </QuestionDescription>
             </QuestionSection>
 
-            <PriceOverviewCard>
-              <PriceHeader>
-                <PriceTitle>
-                  <span className="label">Preisübersicht</span>
-                  <span className="amount">{calculatePrice()}€</span>
-                </PriceTitle>
-              </PriceHeader>
-              <PriceContent>
-                <PriceGrid>
-                  <PriceItem>
-                    <span className="label">Kundentyp: {state.customerType}</span>
-                    <div className="actions">
-                      <span className="price">
-                        +{pricing.customerType[state.customerType as keyof typeof pricing.customerType] || 0}€
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => goToStep(0)}
-                        className="text-primary hover:bg-primary/10 h-8 w-8 p-0"
-                      >
-                        <Edit2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </PriceItem>
+            <OverviewCard>
+              <OverviewHeader>
+                <h3>Zusammenfassung</h3>
+              </OverviewHeader>
+              <OverviewContent>
+                {/* Basisdaten */}
+                <OverviewSection>
+                  <OverviewSectionHeader>
+                    <h4>Basisdaten</h4>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => goToStep(0)}
+                      className="text-primary hover:bg-primary/10 h-8 w-8 p-0"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  </OverviewSectionHeader>
+                  <OverviewGrid>
+                    <OverviewItem>
+                      <span className="label">Name:</span>
+                      <span className="value">{state.vorname} {state.nachname}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Geburtsdatum:</span>
+                      <span className="value">{state.geburtsdatum}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Geschlecht:</span>
+                      <span className="value">{state.geschlecht}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Größe/Gewicht:</span>
+                      <span className="value">{state.koerpergroesse} cm / {state.gewicht} kg</span>
+                    </OverviewItem>
+                  </OverviewGrid>
+                </OverviewSection>
 
-                  <PriceItem>
-                    <span className="label">Website-Typ: {state.websiteType}</span>
-                    <div className="actions">
-                      <span className="price">
-                        +{pricing.websiteType[state.websiteType as keyof typeof pricing.websiteType] || 0}€
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => goToStep(1)}
-                        className="text-primary hover:bg-primary/10 h-8 w-8 p-0"
-                      >
-                        <Edit2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </PriceItem>
+                {/* Kontakt */}
+                <OverviewSection>
+                  <OverviewSectionHeader>
+                    <h4>Kontaktdaten</h4>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => goToStep(1)}
+                      className="text-primary hover:bg-primary/10 h-8 w-8 p-0"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  </OverviewSectionHeader>
+                  <OverviewGrid>
+                    {state.strasse && (
+                      <OverviewItem>
+                        <span className="label">Adresse:</span>
+                        <span className="value">{state.strasse}</span>
+                      </OverviewItem>
+                    )}
+                    {state.plzOrt && (
+                      <OverviewItem>
+                        <span className="label">PLZ/Ort:</span>
+                        <span className="value">{state.plzOrt}</span>
+                      </OverviewItem>
+                    )}
+                    {state.land && (
+                      <OverviewItem>
+                        <span className="label">Land:</span>
+                        <span className="value">{state.land}</span>
+                      </OverviewItem>
+                    )}
+                    {state.email && (
+                      <OverviewItem>
+                        <span className="label">E-Mail:</span>
+                        <span className="value">{state.email}</span>
+                      </OverviewItem>
+                    )}
+                    <OverviewItem>
+                      <span className="label">Telefon:</span>
+                      <span className="value">{state.telefon}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Mobil:</span>
+                      <span className="value">{state.mobil}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Gruppe:</span>
+                      <span className="value">{state.gruppe}</span>
+                    </OverviewItem>
+                  </OverviewGrid>
+                </OverviewSection>
 
-                  <PriceItem>
-                    <span className="label">Bestehende Website: {state.hasExistingWebsite}</span>
-                    <div className="actions">
-                      <span className="price">
-                        {pricing.hasExistingWebsite[
-                          state.hasExistingWebsite as keyof typeof pricing.hasExistingWebsite
-                        ] || 0}
-                        €
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => goToStep(2)}
-                        className="text-primary hover:bg-primary/10 h-8 w-8 p-0"
-                      >
-                        <Edit2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </PriceItem>
+                {/* Gesundheitsdaten Teil 1 */}
+                <OverviewSection>
+                  <OverviewSectionHeader>
+                    <h4>Gesundheitsdaten (Teil 1)</h4>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => goToStep(2)}
+                      className="text-primary hover:bg-primary/10 h-8 w-8 p-0"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  </OverviewSectionHeader>
+                  <OverviewGrid>
+                    <OverviewItem>
+                      <span className="label">Rauchen:</span>
+                      <span className="value">{state.rauchen}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Hypertonie:</span>
+                      <span className="value">{state.hypertonie}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Schilddrüse:</span>
+                      <span className="value">{state.schilddruese}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Schlafstörungen:</span>
+                      <span className="value">{state.schlafstoerungen}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Diabetes:</span>
+                      <span className="value">{state.diabetes}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Sportliche Aktivität:</span>
+                      <span className="value">{state.sportlicheAktivitaet}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">COPD:</span>
+                      <span className="value">{state.copd}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Antidepressiva:</span>
+                      <span className="value">{state.antidepressiva}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Alkohol:</span>
+                      <span className="value">{state.alkohol}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Schichtarbeit:</span>
+                      <span className="value">{state.schichtarbeit}</span>
+                    </OverviewItem>
+                  </OverviewGrid>
+                </OverviewSection>
 
-                  <PriceItem>
-                    <span className="label">Fotos/Videos vorhanden: {state.hasPhotos}</span>
-                    <div className="actions">
-                      <span className="price">
-                        +{pricing.hasPhotos[state.hasPhotos as keyof typeof pricing.hasPhotos] || 0}€
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => goToStep(4)}
-                        className="text-primary hover:bg-primary/10 h-8 w-8 p-0"
-                      >
-                        <Edit2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </PriceItem>
+                {/* Gesundheitsdaten Teil 2 */}
+                <OverviewSection>
+                  <OverviewSectionHeader>
+                    <h4>Gesundheitsdaten (Teil 2)</h4>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => goToStep(3)}
+                      className="text-primary hover:bg-primary/10 h-8 w-8 p-0"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  </OverviewSectionHeader>
+                  <OverviewGrid>
+                    <OverviewItem>
+                      <span className="label">Allergien:</span>
+                      <span className="value">{state.allergien}</span>
+                    </OverviewItem>
+                    {state.ernaehrung && (
+                      <OverviewItem>
+                        <span className="label">Ernährung:</span>
+                        <span className="value">{state.ernaehrung}</span>
+                      </OverviewItem>
+                    )}
+                    <OverviewItem>
+                      <span className="label">Krebstherapie:</span>
+                      <span className="value">{state.krebstherapie}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Immunsystem-Hinweis:</span>
+                      <span className="value">{state.immunsystem}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Depressionen:</span>
+                      <span className="value">{state.depressionen}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Gelenkschmerzen:</span>
+                      <span className="value">{state.gelenkschmerzen}</span>
+                    </OverviewItem>
+                    {state.schmerzen && (
+                      <OverviewItem>
+                        <span className="label">Schmerzen:</span>
+                        <span className="value">{state.schmerzen}</span>
+                      </OverviewItem>
+                    )}
+                  </OverviewGrid>
+                </OverviewSection>
 
-                  <PriceItem>
-                    <span className="label">Texte vorhanden: {state.hasTexts}</span>
-                    <div className="actions">
-                      <span className="price">
-                        +{pricing.hasTexts[state.hasTexts as keyof typeof pricing.hasTexts] || 0}€
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => goToStep(5)}
-                        className="text-primary hover:bg-primary/10 h-8 w-8 p-0"
-                      >
-                        <Edit2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </PriceItem>
+                {/* Gesundheitsdaten Teil 3 */}
+                <OverviewSection>
+                  <OverviewSectionHeader>
+                    <h4>Lebensstil</h4>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => goToStep(4)}
+                      className="text-primary hover:bg-primary/10 h-8 w-8 p-0"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  </OverviewSectionHeader>
+                  <OverviewGrid>
+                    <OverviewItem>
+                      <span className="label">Hautprobleme:</span>
+                      <span className="value">{state.hautprobleme}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Passivrauchen:</span>
+                      <span className="value">{state.passivrauchen}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Weniger als 1,5L Wasser/Tag:</span>
+                      <span className="value">{state.wasserkonsum}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Gesüßte Getränke:</span>
+                      <span className="value">{state.gesuessteGetraenke}</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Erhöhter Zuckerkonsum:</span>
+                      <span className="value">{state.zuckerkonsum}</span>
+                    </OverviewItem>
+                  </OverviewGrid>
+                </OverviewSection>
 
-                  <PriceItem>
-                    <span className="label">Logo/Design vorhanden: {state.hasLogo}</span>
-                    <div className="actions">
-                      <span className="price">
-                        +{pricing.hasLogo[state.hasLogo as keyof typeof pricing.hasLogo] || 0}€
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => goToStep(6)}
-                        className="text-primary hover:bg-primary/10 h-8 w-8 p-0"
-                      >
-                        <Edit2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </PriceItem>
-
-                  <DetailSection>
-                    <div className="header">
-                      <span className="title">Inhalte/Unterseiten:</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => goToStep(3)}
-                        className="text-primary hover:bg-primary/10 h-8 w-8 p-0"
-                      >
-                        <Edit2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                    <div className="items">
-                      {state.contentPages.map((page) => (
-                        <div key={page} className="item">
-                          <span>• {page}</span>
-                          <span className="item-price">
-                            +{pricing.contentPages[page as keyof typeof pricing.contentPages]}€
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </DetailSection>
-
-                  {state.features.length > 0 && (
-                    <DetailSection>
-                      <div className="header">
-                        <span className="title">Zusätzliche Features:</span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => goToStep(7)}
-                          className="text-primary hover:bg-primary/10 h-8 w-8 p-0"
-                        >
-                          <Edit2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                      <div className="items">
-                        {state.features.map((feature) => (
-                          <div key={feature} className="item">
-                            <span>• {feature}</span>
-                            <span className="item-price">
-                              +{pricing.features[feature as keyof typeof pricing.features]}€
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </DetailSection>
-                  )}
-                </PriceGrid>
-              </PriceContent>
-            </PriceOverviewCard>
-
-            <Card className="border-2 border-muted">
-              <CardHeader>
-                <CardTitle className="text-primary">Hast du noch Anmerkungen?</CardTitle>
-                <CardDescription>Teile uns weitere Details oder spezielle Wünsche mit</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  placeholder="Beschreibe hier deine besonderen Wünsche, Vorstellungen oder Fragen..."
-                  value={state.comments}
-                  onChange={(e) => updateState("comments", e.target.value)}
-                  className="min-h-[120px] text-lg border-2"
-                />
-              </CardContent>
-            </Card>
+                {/* Körpermaße */}
+                <OverviewSection>
+                  <OverviewSectionHeader>
+                    <h4>Körpermaße</h4>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => goToStep(5)}
+                      className="text-primary hover:bg-primary/10 h-8 w-8 p-0"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  </OverviewSectionHeader>
+                  <OverviewGrid>
+                    <OverviewItem>
+                      <span className="label">Nackenumfang:</span>
+                      <span className="value">{state.nackenumfang} cm</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Hüftumfang:</span>
+                      <span className="value">{state.hueftumfang} cm</span>
+                    </OverviewItem>
+                    <OverviewItem>
+                      <span className="label">Max. Herzfrequenz:</span>
+                      <span className="value">{calculateMaxHeartRate()} bpm</span>
+                    </OverviewItem>
+                    {state.blutgruppe && (
+                      <OverviewItem>
+                        <span className="label">Blutgruppe:</span>
+                        <span className="value">{state.blutgruppe}</span>
+                      </OverviewItem>
+                    )}
+                  </OverviewGrid>
+                </OverviewSection>
+              </OverviewContent>
+            </OverviewCard>
           </StepContent>
         )
 
@@ -1240,75 +1803,78 @@ export default function Component() {
           <HeaderCard>
             <DimarLogo />
             <ContactInfo>
-              <div className="label">Kostenlose Beratung</div>
+              <div className="label">Fragen?</div>
               <div className="phone">+49 (0) 123 456 789</div>
             </ContactInfo>
           </HeaderCard>
 
           <TitleSection>
-            <h1>Website Preiskalkulator</h1>
-            <p>Erhalte in wenigen Schritten dein individuelles Angebot für deine neue Website</p>
+            <h1>Anamnese Formular</h1>
+            <p>Bitte füllen Sie das Formular vollständig aus, um Ihre Gesundheitsdaten zu erfassen</p>
           </TitleSection>
         </HeaderSection>
 
         <MainCard>
           <CardContentWrapper>
             {/* Progress Bar */}
-            <ProgressSection>
-              <ProgressHeader>
-                <span className="title">Fortschritt</span>
-                <span className="step-info">
-                  Schritt {currentStep + 1} von {steps.length}
-                </span>
-              </ProgressHeader>
-              <ProgressBarWrapper>
-                <Progress value={progress} className="h-3" />
-              </ProgressBarWrapper>
+            {!isSubmitted && (
+              <ProgressSection>
+                <ProgressHeader>
+                  <span className="title">Fortschritt</span>
+                  <span className="step-info">
+                    Schritt {currentStep + 1} von {steps.length}
+                  </span>
+                </ProgressHeader>
+                <ProgressBarWrapper>
+                  <Progress value={progress} className="h-3" />
+                </ProgressBarWrapper>
 
-              {/* Step Navigation */}
-              <StepNavigation>
-                {steps.map((step, index) => (
-                  <StepItem key={index}>
-                    <StepButton
-                      onClick={() => goToStep(index)}
-                      disabled={index > currentStep && !isStepCompleted(currentStep)}
-                      $isActive={currentStep === index}
-                      $isCompleted={isStepCompleted(index)}
-                      $isDisabled={index > currentStep && !isStepCompleted(currentStep)}
-                    >
-                      {isStepCompleted(index) && index !== currentStep ? <Check className="h-4 w-4" /> : index + 1}
-                    </StepButton>
-                    <StepLabel $isActive={currentStep === index} $isCompleted={isStepCompleted(index)}>
-                      {step}
-                    </StepLabel>
-                  </StepItem>
-                ))}
-              </StepNavigation>
-            </ProgressSection>
+                {/* Step Navigation */}
+                <StepNavigation>
+                  {steps.map((step, index) => (
+                    <StepItem key={index}>
+                      <StepButton
+                        onClick={() => goToStep(index)}
+                        disabled={index > currentStep && !isStepCompleted(currentStep)}
+                        $isActive={currentStep === index}
+                        $isCompleted={isStepCompleted(index)}
+                        $isDisabled={index > currentStep && !isStepCompleted(currentStep)}
+                      >
+                        {isStepCompleted(index) && index !== currentStep ? <Check className="h-4 w-4" /> : index + 1}
+                      </StepButton>
+                      <StepLabel $isActive={currentStep === index} $isCompleted={isStepCompleted(index)}>
+                        {step}
+                      </StepLabel>
+                    </StepItem>
+                  ))}
+                </StepNavigation>
+              </ProgressSection>
+            )}
 
             {/* Step Content */}
             {renderStep()}
 
             {/* Navigation Buttons */}
-            <NavigationButtons>
-              <BackButton variant="outline" onClick={prevStep} disabled={currentStep === 0}>
-                <ChevronLeft className="h-5 w-5" />
-                Zurück
-              </BackButton>
+            {!isSubmitted && (
+              <NavigationButtons>
+                <BackButton variant="outline" onClick={prevStep} disabled={currentStep === 0}>
+                  <ChevronLeft className="h-5 w-5" />
+                  Zurück
+                </BackButton>
 
-              {currentStep < steps.length - 1 ? (
-                <NextButton onClick={nextStep} disabled={!canProceed()}>
-                  Weiter
-                  <ChevronRight className="h-5 w-5" />
-                </NextButton>
-              ) : (
-                <FinalButton>
-                  <Check className="h-5 w-5" />
-                  Angebot einholen
-                  <ArrowRight className="h-5 w-5" />
-                </FinalButton>
-              )}
-            </NavigationButtons>
+                {currentStep < steps.length - 1 ? (
+                  <NextButton onClick={nextStep} disabled={!canProceed()}>
+                    Weiter
+                    <ChevronRight className="h-5 w-5" />
+                  </NextButton>
+                ) : (
+                  <SubmitButton onClick={handleSubmit}>
+                    <Send className="h-5 w-5" />
+                    Formular absenden
+                  </SubmitButton>
+                )}
+              </NavigationButtons>
+            )}
           </CardContentWrapper>
         </MainCard>
       </MainWrapper>
