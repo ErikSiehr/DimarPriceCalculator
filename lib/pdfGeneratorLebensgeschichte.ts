@@ -1,0 +1,111 @@
+import { jsPDF } from 'jspdf'
+import { lebensgeschichteCategories, ageRanges, LebensgeschichteState } from '@/lib/lebensgeschichteConfig'
+
+export function downloadLebensgeschichtePDF(state: LebensgeschichteState) {
+  const doc = new jsPDF()
+  const pageWidth = doc.internal.pageSize.getWidth()
+  let yPos = 20
+  const lineHeight = 7
+  const sectionGap = 12
+  const leftMargin = 20
+  const rightMargin = pageWidth - 20
+
+  // Brand colors
+  const primaryColor = { r: 58, g: 52, b: 41 }
+  const accentColor = { r: 168, g: 148, b: 84 }
+
+  // Helper functions
+  const addSectionHeader = (title: string) => {
+    if (yPos > 250) {
+      doc.addPage()
+      yPos = 20
+    }
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(primaryColor.r, primaryColor.g, primaryColor.b)
+    doc.text(title, leftMargin, yPos)
+    yPos += lineHeight + 2
+    doc.setDrawColor(accentColor.r, accentColor.g, accentColor.b)
+    doc.line(leftMargin, yPos, rightMargin, yPos)
+    yPos += 6
+  }
+
+  const addCategoryEntries = (categoryLabel: string, entries: any[]) => {
+    if (yPos > 250) {
+      doc.addPage()
+      yPos = 20
+    }
+    
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(accentColor.r, accentColor.g, accentColor.b)
+    doc.text(categoryLabel, leftMargin, yPos)
+    yPos += lineHeight + 2
+
+    if (entries.length === 0) {
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'italic')
+      doc.setTextColor(168, 148, 84)
+      doc.text('Keine Einträge', leftMargin + 5, yPos)
+      yPos += lineHeight
+    } else {
+      entries.forEach((entry, idx) => {
+        if (yPos > 270) {
+          doc.addPage()
+          yPos = 20
+        }
+
+        const ageRangeLabel = ageRanges.find(ar => ar.id === entry.ageRangeId)?.label || entry.ageRangeId
+        
+        doc.setFontSize(9)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(primaryColor.r, primaryColor.g, primaryColor.b)
+        doc.text(`Alter ${ageRangeLabel}:`, leftMargin + 5, yPos)
+        yPos += lineHeight
+
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(primaryColor.r, primaryColor.g, primaryColor.b)
+        const wrappedText = doc.splitTextToSize(entry.text, rightMargin - leftMargin - 10)
+        doc.text(wrappedText, leftMargin + 10, yPos)
+        yPos += wrappedText.length * lineHeight + 2
+      })
+    }
+    yPos += sectionGap
+  }
+
+  // Title
+  doc.setFontSize(24)
+  doc.setFont('helvetica', 'bold')
+  doc.setTextColor(primaryColor.r, primaryColor.g, primaryColor.b)
+  doc.text('Meine Lebensgeschichte', pageWidth / 2, yPos, { align: 'center' })
+  yPos += 10
+
+  // Subtitle with date
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(accentColor.r, accentColor.g, accentColor.b)
+  const today = new Date().toLocaleDateString('de-DE')
+  doc.text(`Erstellt am: ${today}`, pageWidth / 2, yPos, { align: 'center' })
+  yPos += sectionGap + 5
+
+  // Add each category
+  lebensgeschichteCategories.forEach(category => {
+    addSectionHeader(category.label)
+    const categoryEntries = state[category.id as keyof LebensgeschichteState] as any[]
+    addCategoryEntries(category.label, categoryEntries)
+  })
+
+  // Footer
+  doc.addPage()
+  yPos = 20
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'italic')
+  doc.setTextColor(accentColor.r, accentColor.g, accentColor.b)
+  doc.text('Dieses Dokument enthält persönliche Erinnerungen aus Ihrer Lebensgeschichte.', leftMargin, yPos)
+  yPos += lineHeight
+  doc.text('Die Daten werden vertraulich behandelt und nur für die Dauer der Zusammenarbeit gespeichert.', leftMargin, yPos)
+
+  // Download
+  const fileName = `Lebensgeschichte_${today.replace(/\./g, '-')}.pdf`
+  doc.save(fileName)
+}
