@@ -98,8 +98,8 @@ const OverviewItem = styled.div`
   }
 `
 
-// Consent Section
-const ConsentSection = styled.div`
+// Consent Section - Exported for reuse
+export const ConsentSection = styled.div`
   margin-top: 2rem;
   padding: 1.5rem;
   background-color: ${colors.background.muted};
@@ -107,7 +107,7 @@ const ConsentSection = styled.div`
   border-radius: ${borderRadius.md};
 `
 
-const ConsentHeader = styled.div`
+export const ConsentHeader = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -120,7 +120,7 @@ const ConsentHeader = styled.div`
   }
 `
 
-const ConsentText = styled.div`
+export const ConsentText = styled.div`
   font-size: 0.875rem;
   color: ${colors.accent.DEFAULT};
   line-height: 1.6;
@@ -143,7 +143,7 @@ const ConsentText = styled.div`
   }
 `
 
-const ConsentCheckbox = styled.label`
+export const ConsentCheckbox = styled.label`
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
