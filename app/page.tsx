@@ -1,4 +1,4 @@
-import { AnamneseFormular } from "@/components/anamnese"
+import { AnamneseFormular } from '@/components/anamnese'
 
 export default function Page() {
   return <AnamneseFormular />
