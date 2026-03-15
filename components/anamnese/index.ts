@@ -37,14 +37,12 @@ export { MultiSelect } from "./MultiSelect"
 // Step Progress Component
 export { StepProgress } from "./StepProgress"
 
-// Overview Component
-export { 
-  Overview,
-  ConsentSection,
-  ConsentHeader,
-  ConsentText,
-  ConsentCheckbox,
-} from "./Overview"
+// Overview and Consent Components
+export { Overview } from "./Overview"
+export { ConsentSection } from "./Overview"
+export { ConsentHeader } from "./Overview"
+export { ConsentText } from "./Overview"
+export { ConsentCheckbox } from "./Overview"
 
 // Buttons
 export {
