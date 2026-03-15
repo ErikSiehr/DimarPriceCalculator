@@ -12,6 +12,8 @@ import {
   LebensgeschichteState,
   initialLebensgeschichteState,
   TimelineEntry,
+  calculateAge,
+  PersonalInfo,
 } from '@/lib/lebensgeschichteConfig'
 import { downloadLebensgeschichtePDF } from '@/lib/pdfGeneratorLebensgeschichte'
 import { Timeline } from './Timeline'
@@ -40,6 +42,12 @@ import {
   ConsentText,
   ConsentCheckbox,
   SuccessScreen,
+  FormGrid,
+  FormField,
+  FormLabel,
+  FormInput,
+  ToggleGroup,
+  ToggleButton,
 } from '@/components/anamnese'
 
 // Progress indicator reused
@@ -61,6 +69,10 @@ export function LebensgeschichteFormular() {
   const [emailSent, setEmailSent] = useState(false)
 
   const handleNext = () => {
+    // Validate personal info step before proceeding
+    if (currentStep === 0 && !isPersonalInfoValid()) {
+      return
+    }
     if (currentStep < lebensgeschichteSteps.length - 1) {
       setCurrentStep(currentStep + 1)
     }
@@ -90,6 +102,23 @@ export function LebensgeschichteFormular() {
     if (sendEmail) {
       setEmailSent(true)
     }
+  }
+
+  // Calculate current age based on birthdate
+  const currentAge = calculateAge(state.personalInfo.geburtsdatum)
+
+  // Update personal info
+  const updatePersonalInfo = (key: keyof PersonalInfo, value: string) => {
+    setState(prev => ({
+      ...prev,
+      personalInfo: { ...prev.personalInfo, [key]: value }
+    }))
+  }
+
+  // Validate personal info step
+  const isPersonalInfoValid = () => {
+    const { vorname, nachname, geburtsdatum, geschlecht } = state.personalInfo
+    return vorname.trim() !== '' && nachname.trim() !== '' && geburtsdatum !== '' && geschlecht !== ''
   }
 
   // Add or update timeline entry
@@ -125,6 +154,74 @@ export function LebensgeschichteFormular() {
     
     if (!step) return null
 
+    // Personal info step (first step)
+    if (step.categoryId === 'personal') {
+      return (
+        <StepContent>
+          <QuestionTitle>{step.title}</QuestionTitle>
+          <p style={{ textAlign: 'center', color: '#A89454', marginBottom: '2rem', fontSize: '1.125rem' }}>
+            Bitte geben Sie Ihre persönlichen Daten ein, damit wir Ihre Lebensgeschichte zuordnen können.
+          </p>
+          
+          <FormGrid $columns={2}>
+            <FormField>
+              <FormLabel htmlFor="vorname">Vorname *</FormLabel>
+              <FormInput
+                id="vorname"
+                type="text"
+                placeholder="Max"
+                value={state.personalInfo.vorname}
+                onChange={(e) => updatePersonalInfo('vorname', e.target.value)}
+              />
+            </FormField>
+            <FormField>
+              <FormLabel htmlFor="nachname">Nachname *</FormLabel>
+              <FormInput
+                id="nachname"
+                type="text"
+                placeholder="Mustermann"
+                value={state.personalInfo.nachname}
+                onChange={(e) => updatePersonalInfo('nachname', e.target.value)}
+              />
+            </FormField>
+            <FormField>
+              <FormLabel htmlFor="geburtsdatum">Geburtsdatum *</FormLabel>
+              <FormInput
+                id="geburtsdatum"
+                type="date"
+                value={state.personalInfo.geburtsdatum}
+                onChange={(e) => updatePersonalInfo('geburtsdatum', e.target.value)}
+              />
+              {state.personalInfo.geburtsdatum && (
+                <p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#A89454' }}>
+                  Aktuelles Alter: {currentAge} Jahre
+                </p>
+              )}
+            </FormField>
+            <FormField>
+              <FormLabel>Biologisches Geschlecht *</FormLabel>
+              <ToggleGroup>
+                <ToggleButton
+                  type="button"
+                  $isActive={state.personalInfo.geschlecht === 'Männlich'}
+                  onClick={() => updatePersonalInfo('geschlecht', 'Männlich')}
+                >
+                  Männlich
+                </ToggleButton>
+                <ToggleButton
+                  type="button"
+                  $isActive={state.personalInfo.geschlecht === 'Weiblich'}
+                  onClick={() => updatePersonalInfo('geschlecht', 'Weiblich')}
+                >
+                  Weiblich
+                </ToggleButton>
+              </ToggleGroup>
+            </FormField>
+          </FormGrid>
+        </StepContent>
+      )
+    }
+
     // Overview step
     if (currentStep === lebensgeschichteSteps.length - 1) {
       if (isSubmitted) {
@@ -145,7 +242,28 @@ export function LebensgeschichteFormular() {
         <StepContent>
           <QuestionTitle>Übersicht</QuestionTitle>
           
-          <div style={{ display: 'grid', gap: '1.5rem', marginTop: '2rem' }}>
+          {/* Personal Info Summary */}
+          <div
+            style={{
+              padding: '1rem',
+              border: '2px solid #3A3429',
+              borderRadius: '0.75rem',
+              backgroundColor: 'rgba(168, 148, 84, 0.05)',
+              marginBottom: '1.5rem',
+            }}
+          >
+            <h4 style={{ color: '#3A3429', marginBottom: '0.75rem', fontWeight: '600' }}>
+              Persönliche Daten
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem', fontSize: '0.875rem' }}>
+              <p><strong style={{ color: '#A89454' }}>Name:</strong> <span style={{ color: '#3A3429' }}>{state.personalInfo.vorname} {state.personalInfo.nachname}</span></p>
+              <p><strong style={{ color: '#A89454' }}>Geburtsdatum:</strong> <span style={{ color: '#3A3429' }}>{state.personalInfo.geburtsdatum}</span></p>
+              <p><strong style={{ color: '#A89454' }}>Alter:</strong> <span style={{ color: '#3A3429' }}>{currentAge} Jahre</span></p>
+              <p><strong style={{ color: '#A89454' }}>Geschlecht:</strong> <span style={{ color: '#3A3429' }}>{state.personalInfo.geschlecht}</span></p>
+            </div>
+          </div>
+          
+          <div style={{ display: 'grid', gap: '1.5rem' }}>
             {lebensgeschichteCategories.map(category => {
               const entries = state[category.id as keyof LebensgeschichteState] as TimelineEntry[]
               return (
@@ -243,6 +361,7 @@ export function LebensgeschichteFormular() {
         <Timeline
           entries={categoryEntries}
           categoryColor={category.color}
+          maxAge={currentAge > 0 ? currentAge : undefined}
           onAddEntry={(ageRangeId) => updateTimelineEntry(category.id, ageRangeId, '')}
           onUpdateEntry={(ageRangeId, text) => updateTimelineEntry(category.id, ageRangeId, text)}
           onRemoveEntry={(ageRangeId) => removeTimelineEntry(category.id, ageRangeId)}

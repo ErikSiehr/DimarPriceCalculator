@@ -83,15 +83,16 @@ export const ageRanges: AgeRange[] = [
   { id: 'age-70-72', label: '70–72', start: 70, end: 72 },
 ]
 
-// Lebensgeschichte form structure - 6 steps, one per category
+// Lebensgeschichte form structure - personal info first, then 6 timeline categories
 export const lebensgeschichteSteps = [
-  { id: 0, label: 'Wohnorte', categoryId: 'wohnorte', title: 'Meine Wohnorte' },
-  { id: 1, label: 'Meine Gesundheit', categoryId: 'gesundheit', title: 'Meine Gesundheit' },
-  { id: 2, label: 'Familiengesundheit', categoryId: 'familiengesundheit', title: 'Gesundheit meiner Familie' },
-  { id: 3, label: 'Arbeit & Ausbildung', categoryId: 'arbeit', title: 'Meine Ausbildung & Arbeit' },
-  { id: 4, label: 'Beziehungen', categoryId: 'beziehungen', title: 'Freunde & Beziehungen' },
-  { id: 5, label: 'Ereignisse', categoryId: 'ereignisse', title: 'Ereignisse' },
-  { id: 6, label: 'Übersicht', categoryId: 'overview', title: 'Übersicht' },
+  { id: 0, label: 'Persönliche Daten', categoryId: 'personal', title: 'Persönliche Daten' },
+  { id: 1, label: 'Wohnorte', categoryId: 'wohnorte', title: 'Meine Wohnorte' },
+  { id: 2, label: 'Meine Gesundheit', categoryId: 'gesundheit', title: 'Meine Gesundheit' },
+  { id: 3, label: 'Familiengesundheit', categoryId: 'familiengesundheit', title: 'Gesundheit meiner Familie' },
+  { id: 4, label: 'Arbeit & Ausbildung', categoryId: 'arbeit', title: 'Meine Ausbildung & Arbeit' },
+  { id: 5, label: 'Beziehungen', categoryId: 'beziehungen', title: 'Freunde & Beziehungen' },
+  { id: 6, label: 'Ereignisse', categoryId: 'ereignisse', title: 'Ereignisse' },
+  { id: 7, label: 'Übersicht', categoryId: 'overview', title: 'Übersicht' },
 ]
 
 // Type for storing timeline data
@@ -100,7 +101,16 @@ export interface TimelineEntry {
   text: string
 }
 
+// Personal info for identification
+export interface PersonalInfo {
+  vorname: string
+  nachname: string
+  geburtsdatum: string
+  geschlecht: string
+}
+
 export interface LebensgeschichteState {
+  personalInfo: PersonalInfo
   wohnorte: TimelineEntry[]
   gesundheit: TimelineEntry[]
   familiengesundheit: TimelineEntry[]
@@ -110,12 +120,36 @@ export interface LebensgeschichteState {
 }
 
 export const initialLebensgeschichteState: LebensgeschichteState = {
+  personalInfo: {
+    vorname: '',
+    nachname: '',
+    geburtsdatum: '',
+    geschlecht: '',
+  },
   wohnorte: [],
   gesundheit: [],
   familiengesundheit: [],
   arbeit: [],
   beziehungen: [],
   ereignisse: [],
+}
+
+// Helper to calculate age from birthdate
+export function calculateAge(birthdate: string): number {
+  if (!birthdate) return 0
+  const birth = new Date(birthdate)
+  const today = new Date()
+  let age = today.getFullYear() - birth.getFullYear()
+  const monthDiff = today.getMonth() - birth.getMonth()
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--
+  }
+  return age
+}
+
+// Helper to filter age ranges based on current age
+export function getFilteredAgeRanges(currentAge: number) {
+  return ageRanges.filter(range => range.start <= currentAge)
 }
 
 // Helper to get category by ID

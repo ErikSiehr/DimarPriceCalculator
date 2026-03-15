@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf'
-import { lebensgeschichteCategories, ageRanges, LebensgeschichteState } from '@/lib/lebensgeschichteConfig'
+import { lebensgeschichteCategories, ageRanges, LebensgeschichteState, calculateAge, TimelineEntry } from '@/lib/lebensgeschichteConfig'
 
 export function downloadLebensgeschichtePDF(state: LebensgeschichteState) {
   const doc = new jsPDF()
@@ -88,11 +88,30 @@ export function downloadLebensgeschichtePDF(state: LebensgeschichteState) {
   doc.text(`Erstellt am: ${today}`, pageWidth / 2, yPos, { align: 'center' })
   yPos += sectionGap + 5
 
+  // Personal Info Section
+  addSectionHeader('Persönliche Daten')
+  const { personalInfo } = state
+  const age = calculateAge(personalInfo.geburtsdatum)
+  
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(primaryColor.r, primaryColor.g, primaryColor.b)
+  
+  doc.text(`Name: ${personalInfo.vorname} ${personalInfo.nachname}`, leftMargin, yPos)
+  yPos += lineHeight
+  doc.text(`Geburtsdatum: ${personalInfo.geburtsdatum}`, leftMargin, yPos)
+  yPos += lineHeight
+  doc.text(`Alter: ${age} Jahre`, leftMargin, yPos)
+  yPos += lineHeight
+  doc.text(`Geschlecht: ${personalInfo.geschlecht}`, leftMargin, yPos)
+  yPos += sectionGap + 5
+
   // Add each category
   lebensgeschichteCategories.forEach(category => {
     addSectionHeader(category.label)
-    const categoryEntries = state[category.id as keyof LebensgeschichteState] as any[]
-    addCategoryEntries(category.label, categoryEntries)
+    const categoryKey = category.id as keyof Omit<LebensgeschichteState, 'personalInfo'>
+    const categoryEntries = state[categoryKey] as TimelineEntry[]
+    addCategoryEntries(category.label, categoryEntries || [])
   })
 
   // Footer
@@ -105,7 +124,7 @@ export function downloadLebensgeschichtePDF(state: LebensgeschichteState) {
   yPos += lineHeight
   doc.text('Die Daten werden vertraulich behandelt und nur für die Dauer der Zusammenarbeit gespeichert.', leftMargin, yPos)
 
-  // Download
-  const fileName = `Lebensgeschichte_${today.replace(/\./g, '-')}.pdf`
+  // Download with person's name
+  const fileName = `Lebensgeschichte_${state.personalInfo.vorname}_${state.personalInfo.nachname}_${today.replace(/\./g, '-')}.pdf`
   doc.save(fileName)
 }

@@ -210,6 +210,7 @@ const PreviewTooltip = styled.div`
 interface TimelineProps {
   entries: TimelineEntry[]
   categoryColor: string
+  maxAge?: number // Filter timeline to only show age ranges up to this age
   onAddEntry: (ageRangeId: string) => void
   onUpdateEntry: (ageRangeId: string, text: string) => void
   onRemoveEntry: (ageRangeId: string) => void
@@ -218,6 +219,7 @@ interface TimelineProps {
 export function Timeline({
   entries,
   categoryColor,
+  maxAge,
   onAddEntry,
   onUpdateEntry,
   onRemoveEntry,
@@ -226,6 +228,11 @@ export function Timeline({
   const [currentText, setCurrentText] = useState('')
   const [hoveredAgeRangeId, setHoveredAgeRangeId] = useState<string | null>(null)
   const tooltipRef = useRef<HTMLDivElement>(null)
+
+  // Filter age ranges based on maxAge prop
+  const filteredAgeRanges = maxAge !== undefined 
+    ? ageRanges.filter(range => range.start <= maxAge)
+    : ageRanges
 
   const filledAgeRanges = entries.map(e => e.ageRangeId)
   
@@ -267,7 +274,7 @@ export function Timeline({
     <TimelineContainer>
       <TimelineScrollWrapper>
         <TimelineRow>
-          {ageRanges.map(ageRange => {
+          {filteredAgeRanges.map(ageRange => {
             const isFilled = filledAgeRanges.includes(ageRange.id)
             const entryText = getEntryText(ageRange.id)
             const isHovered = hoveredAgeRangeId === ageRange.id
