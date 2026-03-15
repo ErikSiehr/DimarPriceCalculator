@@ -193,8 +193,8 @@ export function AnamneseFormular() {
             <HealthQuestionLabel>{question.label}</HealthQuestionLabel>
             <MultiSelect
               options={question.options || []}
-              selectedOptions={Array.isArray(value) ? value : []}
-              onSelectionChange={(selected) => updateState(key, selected)}
+              value={Array.isArray(value) ? value : []}
+              onChange={(selected) => updateState(key, selected)}
             />
           </HealthQuestionCard>
         )
