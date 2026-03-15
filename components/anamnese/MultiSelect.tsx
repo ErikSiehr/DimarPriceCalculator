@@ -133,11 +133,13 @@ interface MultiSelectProps {
 
 export function MultiSelect({
   options,
-  value,
+  value = [],
   onChange,
   placeholder = "Bitte auswählen (Mehrfachauswahl möglich)",
   className,
 }: MultiSelectProps) {
+  // Ensure value is always an array
+  const safeValue = Array.isArray(value) ? value : []
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   
@@ -154,30 +156,30 @@ export function MultiSelect({
   }, [])
   
   const toggleOption = (option: string) => {
-    if (value.includes(option)) {
-      onChange(value.filter(v => v !== option))
+    if (safeValue.includes(option)) {
+      onChange(safeValue.filter(v => v !== option))
     } else {
-      onChange([...value, option])
+      onChange([...safeValue, option])
     }
   }
   
   const removeOption = (option: string, e: React.MouseEvent) => {
     e.stopPropagation()
-    onChange(value.filter(v => v !== option))
+    onChange(safeValue.filter(v => v !== option))
   }
   
   return (
     <Container ref={containerRef} className={className}>
       <Trigger
-        $hasSelection={value.length > 0}
+        $hasSelection={safeValue.length > 0}
         $isOpen={isOpen}
         onClick={() => setIsOpen(!isOpen)}
       >
         <TagsContainer>
-          {value.length === 0 ? (
+          {safeValue.length === 0 ? (
             <Placeholder>{placeholder}</Placeholder>
           ) : (
-            value.map(item => (
+            safeValue.map(item => (
               <Tag key={item}>
                 {item}
                 <TagRemoveButton onClick={(e) => removeOption(item, e)}>
@@ -192,10 +194,10 @@ export function MultiSelect({
       
       <Dropdown $isOpen={isOpen}>
         {options.map(option => (
-          <Option key={option} $isSelected={value.includes(option)}>
+          <Option key={option} $isSelected={safeValue.includes(option)}>
             <Checkbox
               type="checkbox"
-              checked={value.includes(option)}
+              checked={safeValue.includes(option)}
               onChange={() => toggleOption(option)}
             />
             <OptionLabel>{option}</OptionLabel>
