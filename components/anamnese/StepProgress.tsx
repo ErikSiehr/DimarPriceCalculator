@@ -2,36 +2,20 @@
 
 import styled from "styled-components"
 import { Check } from "lucide-react"
-import { Progress } from "@/components/ui/progress"
 import { colors, borderRadius, transitions } from "@/lib/theme"
-import { formSteps } from "@/lib/types"
+
+// Types
+interface Step {
+  id: number
+  label: string
+  title?: string
+  description?: string
+  questions?: any[]
+}
 
 // Styled Components
 const ProgressSection = styled.div`
-  margin-bottom: 3rem;
-`
-
-const ProgressHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  
-  .title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: ${colors.primary.DEFAULT};
-  }
-  
-  .step-info {
-    font-size: 1.125rem;
-    color: ${colors.accent.DEFAULT};
-  }
-`
-
-const ProgressBarWrapper = styled.div`
-  margin-bottom: 1.5rem;
-  height: 0.75rem;
+  margin-bottom: 2rem;
 `
 
 const StepNavigation = styled.div`
@@ -122,42 +106,31 @@ const StepLabel = styled.span<{
 
 // Component Props
 interface StepProgressProps {
+  steps: Step[]
   currentStep: number
   onStepClick: (step: number) => void
-  isStepValid: (step: number) => boolean
+  completedSteps: number[]
 }
 
-export function StepProgress({ currentStep, onStepClick, isStepValid }: StepProgressProps) {
-  const progress = ((currentStep + 1) / formSteps.length) * 100
-  
+export function StepProgress({ steps, currentStep, onStepClick, completedSteps }: StepProgressProps) {
   const isStepCompleted = (stepIndex: number) => {
-    if (stepIndex < currentStep) return true
-    if (stepIndex === currentStep) return isStepValid(stepIndex)
-    return false
+    return completedSteps.includes(stepIndex) || stepIndex < currentStep
   }
   
   const canNavigateToStep = (stepIndex: number) => {
+    // Can always go back or stay on current
     if (stepIndex <= currentStep) return true
-    // Can only go to next step if current is valid
+    // Can go forward if all previous steps are completed
     for (let i = 0; i < stepIndex; i++) {
-      if (!isStepValid(i)) return false
+      if (!isStepCompleted(i) && i !== currentStep) return false
     }
-    return true
+    return false
   }
   
   return (
     <ProgressSection>
-      <ProgressHeader>
-        <span className="title">Fortschritt</span>
-        <span className="step-info">Schritt {currentStep + 1} von {formSteps.length}</span>
-      </ProgressHeader>
-      
-      <ProgressBarWrapper>
-        <Progress value={progress} />
-      </ProgressBarWrapper>
-      
       <StepNavigation>
-        {formSteps.map((step, index) => {
+        {steps.map((step, index) => {
           const isActive = index === currentStep
           const isCompleted = isStepCompleted(index)
           const canNavigate = canNavigateToStep(index)
