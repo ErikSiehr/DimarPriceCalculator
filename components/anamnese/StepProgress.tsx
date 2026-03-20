@@ -118,9 +118,12 @@ export function StepProgress({ steps, currentStep, onStepClick, completedSteps }
   }
   
   const canNavigateToStep = (stepIndex: number) => {
-    // Can always go back to previous steps or stay on current
-    if (stepIndex <= currentStep) return true
-    // Cannot skip forward to future steps
+    // Can navigate to current step, any completed step, or the next step after max completed
+    if (stepIndex === currentStep) return true
+    if (completedSteps.includes(stepIndex)) return true
+    // Allow going to the step right after the last completed step
+    const maxCompleted = Math.max(...completedSteps, -1)
+    if (stepIndex === maxCompleted + 1) return true
     return false
   }
   

@@ -62,6 +62,7 @@ interface LebensgeschichteOverviewItem {
 
 export function LebensgeschichteFormular() {
   const [currentStep, setCurrentStep] = useState(0)
+  const [maxReachedStep, setMaxReachedStep] = useState(0)
   const [state, setState] = useState<LebensgeschichteState>(initialLebensgeschichteState)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [consentGiven, setConsentGiven] = useState(false)
@@ -74,7 +75,9 @@ export function LebensgeschichteFormular() {
       return
     }
     if (currentStep < lebensgeschichteSteps.length - 1) {
-      setCurrentStep(currentStep + 1)
+      const nextStep = currentStep + 1
+      setCurrentStep(nextStep)
+      setMaxReachedStep(prev => Math.max(prev, nextStep))
     }
   }
 
@@ -421,7 +424,7 @@ export function LebensgeschichteFormular() {
               steps={lebensgeschichteSteps}
               currentStep={currentStep}
               onStepClick={handleStepClick}
-              completedSteps={Array.from({ length: currentStep }, (_, i) => i)}
+              completedSteps={Array.from({ length: maxReachedStep }, (_, i) => i)}
             />
 
             {/* Step Content */}
