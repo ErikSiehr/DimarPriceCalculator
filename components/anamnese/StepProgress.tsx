@@ -118,12 +118,9 @@ export function StepProgress({ steps, currentStep, onStepClick, completedSteps }
   }
   
   const canNavigateToStep = (stepIndex: number) => {
-    // Can always go back or stay on current
+    // Can always go back to previous steps or stay on current
     if (stepIndex <= currentStep) return true
-    // Can go forward if all previous steps are completed
-    for (let i = 0; i < stepIndex; i++) {
-      if (!isStepCompleted(i) && i !== currentStep) return false
-    }
+    // Cannot skip forward to future steps
     return false
   }
   

@@ -428,7 +428,7 @@ export function LebensgeschichteFormular() {
             {renderStep()}
           </CardContentWrapper>
 
-          {/* Navigation */}
+          {/* Navigation - always visible unless submitted */}
           {!isSubmitted && (
             <NavigationFooter>
               <BackButton onClick={handleBack} disabled={currentStep === 0}>
@@ -442,7 +442,10 @@ export function LebensgeschichteFormular() {
                   Formular übermitteln
                 </SubmitButton>
               ) : (
-                <NextButton onClick={handleNext}>
+                <NextButton 
+                  onClick={handleNext}
+                  disabled={currentStep === 0 && !isPersonalInfoValid()}
+                >
                   Weiter
                   <ChevronRight className="h-5 w-5" />
                 </NextButton>

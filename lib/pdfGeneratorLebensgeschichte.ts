@@ -30,7 +30,7 @@ export function downloadLebensgeschichtePDF(state: LebensgeschichteState) {
     yPos += 6
   }
 
-  const addCategoryEntries = (categoryLabel: string, entries: any[]) => {
+  const addAgeRangeSection = (ageRangeLabel: string, entries: { category: string; text: string; color: string }[]) => {
     if (yPos > 250) {
       doc.addPage()
       yPos = 20
@@ -38,8 +38,8 @@ export function downloadLebensgeschichtePDF(state: LebensgeschichteState) {
     
     doc.setFontSize(12)
     doc.setFont('helvetica', 'bold')
-    doc.setTextColor(accentColor.r, accentColor.g, accentColor.b)
-    doc.text(categoryLabel, leftMargin, yPos)
+    doc.setTextColor(primaryColor.r, primaryColor.g, primaryColor.b)
+    doc.text(`Alter: ${ageRangeLabel}`, leftMargin, yPos)
     yPos += lineHeight + 2
 
     if (entries.length === 0) {
@@ -49,18 +49,16 @@ export function downloadLebensgeschichtePDF(state: LebensgeschichteState) {
       doc.text('Keine Einträge', leftMargin + 5, yPos)
       yPos += lineHeight
     } else {
-      entries.forEach((entry, idx) => {
+      entries.forEach((entry) => {
         if (yPos > 270) {
           doc.addPage()
           yPos = 20
         }
 
-        const ageRangeLabel = ageRanges.find(ar => ar.id === entry.ageRangeId)?.label || entry.ageRangeId
-        
         doc.setFontSize(9)
         doc.setFont('helvetica', 'bold')
-        doc.setTextColor(primaryColor.r, primaryColor.g, primaryColor.b)
-        doc.text(`Alter ${ageRangeLabel}:`, leftMargin + 5, yPos)
+        doc.setTextColor(accentColor.r, accentColor.g, accentColor.b)
+        doc.text(`${entry.category}:`, leftMargin + 5, yPos)
         yPos += lineHeight
 
         doc.setFont('helvetica', 'normal')
@@ -106,13 +104,53 @@ export function downloadLebensgeschichtePDF(state: LebensgeschichteState) {
   doc.text(`Geschlecht: ${personalInfo.geschlecht}`, leftMargin, yPos)
   yPos += sectionGap + 5
 
-  // Add each category
+  // Timeline Section Header
+  addSectionHeader('Lebensgeschichte nach Jahren')
+
+  // Collect all entries grouped by age range
+  const entriesByAgeRange: Map<string, { category: string; text: string; color: string }[]> = new Map()
+  
+  // Initialize all age ranges
+  ageRanges.forEach(ar => {
+    entriesByAgeRange.set(ar.id, [])
+  })
+
+  // Collect entries from all categories
   lebensgeschichteCategories.forEach(category => {
-    addSectionHeader(category.label)
     const categoryKey = category.id as keyof Omit<LebensgeschichteState, 'personalInfo'>
     const categoryEntries = state[categoryKey] as TimelineEntry[]
-    addCategoryEntries(category.label, categoryEntries || [])
+    
+    if (categoryEntries && categoryEntries.length > 0) {
+      categoryEntries.forEach(entry => {
+        const existing = entriesByAgeRange.get(entry.ageRangeId) || []
+        existing.push({
+          category: category.label,
+          text: entry.text,
+          color: category.color
+        })
+        entriesByAgeRange.set(entry.ageRangeId, existing)
+      })
+    }
   })
+
+  // Output entries sorted by age range (chronologically)
+  ageRanges.forEach(ageRange => {
+    const entries = entriesByAgeRange.get(ageRange.id) || []
+    // Only show age ranges that have entries
+    if (entries.length > 0) {
+      addAgeRangeSection(ageRange.label, entries)
+    }
+  })
+
+  // Check if there are any entries at all
+  const hasAnyEntries = Array.from(entriesByAgeRange.values()).some(entries => entries.length > 0)
+  if (!hasAnyEntries) {
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'italic')
+    doc.setTextColor(168, 148, 84)
+    doc.text('Keine Lebensgeschichte-Einträge vorhanden.', leftMargin, yPos)
+    yPos += lineHeight
+  }
 
   // Footer
   doc.addPage()
