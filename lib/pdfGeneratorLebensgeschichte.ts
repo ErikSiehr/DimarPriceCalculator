@@ -1,7 +1,18 @@
 import { jsPDF } from 'jspdf'
 import { lebensgeschichteCategories, ageRanges, LebensgeschichteState, calculateAge, TimelineEntry } from '@/lib/lebensgeschichteConfig'
+import { downloadVisualizationPDF } from './pdfVisualizationLebensgeschichte'
 
 export function downloadLebensgeschichtePDF(state: LebensgeschichteState) {
+  // Download both PDFs: the detailed text document and the visualization matrix
+  downloadDetailedPDF(state)
+  
+  // Small delay to prevent browser blocking multiple downloads
+  setTimeout(() => {
+    downloadVisualizationPDF(state)
+  }, 500)
+}
+
+function downloadDetailedPDF(state: LebensgeschichteState) {
   const doc = new jsPDF()
   const pageWidth = doc.internal.pageSize.getWidth()
   let yPos = 20
