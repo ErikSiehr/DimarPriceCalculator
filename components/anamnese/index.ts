@@ -34,6 +34,9 @@ export {
 // MultiSelect Component
 export { MultiSelect } from "./MultiSelect"
 
+// CheckboxGrid Component
+export { CheckboxGrid } from "./CheckboxGrid"
+
 // Step Progress Component
 export { StepProgress } from "./StepProgress"
 

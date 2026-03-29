@@ -5,9 +5,9 @@ import { ChevronLeft, ChevronRight, Send } from 'lucide-react'
 import { Progress } from '@/components/ui/progress'
 
 // Import config and types
-import { AnamneseState, initialAnamneseState } from '@/lib/types'
-import { anamneseSteps, anamneseValidationRules } from '@/lib/anamneseConfig'
-import { downloadAnamnePDF, generateAnamnePDFBase64 } from '@/lib/pdfGenerator'
+import { AnamneseState, initialAnamneseState, DiagnosenGridEntry } from '@/lib/types'
+import { extendedAnamneseSteps, extendedValidationRules, ExtendedFormQuestion } from '@/lib/anamneseConfigExtended'
+import { downloadAnamnePDF, generateTherapistPDFBase64 } from '@/lib/pdfGenerator'
 
 // Import components
 import {
@@ -37,6 +37,7 @@ import {
   HealthQuestionLabel,
   HealthQuestionsGrid,
   MultiSelect,
+  CheckboxGrid,
   StepProgress,
   Overview,
   BackButton,
@@ -55,7 +56,7 @@ export function AnamneseFormular() {
   const [emailSent, setEmailSent] = useState(false)
   const [emailError, setEmailError] = useState<string | null>(null)
 
-  const updateState = (key: keyof AnamneseState, value: string | string[]) => {
+  const updateState = (key: keyof AnamneseState, value: string | string[] | { [key: string]: DiagnosenGridEntry }) => {
     setState(prev => ({ ...prev, [key]: value }))
   }
 
@@ -67,15 +68,47 @@ export function AnamneseFormular() {
     return Math.round(220 - age)
   }
 
+  // Check if a question should be visible based on conditional logic
+  const shouldShowQuestion = (question: ExtendedFormQuestion): boolean => {
+    if (!question.showIf) return true
+    
+    const { field, value } = question.showIf
+    const fieldValue = state[field as keyof AnamneseState]
+    
+    if (Array.isArray(value)) {
+      if (Array.isArray(fieldValue)) {
+        return value.some(v => fieldValue.includes(v))
+      }
+      return value.includes(fieldValue as string)
+    }
+    
+    return fieldValue === value
+  }
+
+  // Get visible questions for current step (filter gender-specific and conditional)
+  const getVisibleQuestions = (stepId: number): ExtendedFormQuestion[] => {
+    const step = extendedAnamneseSteps.find(s => s.id === stepId)
+    if (!step) return []
+    
+    return step.questions.filter(q => shouldShowQuestion(q))
+  }
+
   // Validate step based on config rules
   const isCurrentStepValid = (): boolean => {
-    const validationKeys = anamneseValidationRules[currentStep] || []
+    const validationKeys = extendedValidationRules[currentStep] || []
     
     for (const key of validationKeys) {
+      // Skip validation for conditionally hidden fields
+      const question = extendedAnamneseSteps[currentStep]?.questions.find(q => q.id === key)
+      if (question && !shouldShowQuestion(question)) continue
+      
       const value = state[key as keyof AnamneseState]
       
       if (Array.isArray(value)) {
         if (value.length === 0) return false
+      } else if (typeof value === 'object' && value !== null) {
+        // For DiagnosenGrid - no validation required
+        continue
       } else {
         if (!value || value === '') return false
       }
@@ -84,9 +117,25 @@ export function AnamneseFormular() {
     return true
   }
 
+  // Skip steps that have no visible questions (e.g., men skip women's questions step)
+  const getNextVisibleStep = (fromStep: number, direction: 'forward' | 'backward'): number => {
+    let nextStep = fromStep + (direction === 'forward' ? 1 : -1)
+    
+    while (nextStep >= 0 && nextStep < extendedAnamneseSteps.length) {
+      const visibleQuestions = getVisibleQuestions(nextStep)
+      // Overview step (last) should always be visible, or steps with visible questions
+      if (nextStep === extendedAnamneseSteps.length - 1 || visibleQuestions.length > 0) {
+        return nextStep
+      }
+      nextStep += (direction === 'forward' ? 1 : -1)
+    }
+    
+    return direction === 'forward' ? extendedAnamneseSteps.length - 1 : 0
+  }
+
   const handleNext = () => {
-    if (currentStep < anamneseSteps.length - 1 && isCurrentStepValid()) {
-      const nextStep = currentStep + 1
+    if (currentStep < extendedAnamneseSteps.length - 1 && isCurrentStepValid()) {
+      const nextStep = getNextVisibleStep(currentStep, 'forward')
       setCurrentStep(nextStep)
       setMaxReachedStep(prev => Math.max(prev, nextStep))
     }
@@ -94,22 +143,27 @@ export function AnamneseFormular() {
 
   const handleBack = () => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1)
+      const prevStep = getNextVisibleStep(currentStep, 'backward')
+      setCurrentStep(prevStep)
     }
   }
 
   const handleStepClick = (step: number) => {
-    setCurrentStep(step)
+    // Check if step has visible questions or is the overview
+    const visibleQuestions = getVisibleQuestions(step)
+    if (visibleQuestions.length > 0 || step === extendedAnamneseSteps.length - 1) {
+      setCurrentStep(step)
+    }
   }
 
-const handleSubmit = async () => {
+  const handleSubmit = async () => {
     if (consentGiven) {
       setIsEmailSending(true)
       setEmailError(null)
       
       try {
-        // Generate PDF base64 for email
-        const pdfBase64 = generateAnamnePDFBase64(state, calculateMaxHeartRate())
+        // Generate THERAPIST PDF base64 for email (with Vieva + IASA sections)
+        const pdfBase64 = generateTherapistPDFBase64(state, calculateMaxHeartRate())
         const patientName = `${state.vorname} ${state.nachname}`
         
         // Send email with PDF attachment
@@ -147,7 +201,7 @@ const handleSubmit = async () => {
   }
 
   // Render form field based on config type
-  const renderFormField = (question: any) => {
+  const renderFormField = (question: ExtendedFormQuestion) => {
     const key = question.id as keyof AnamneseState
     const value = state[key]
 
@@ -239,19 +293,46 @@ const handleSubmit = async () => {
           </HealthQuestionCard>
         )
 
+      case 'checkbox-grid':
+        return (
+          <div key={question.id} style={{ gridColumn: '1 / -1' }}>
+            <FormLabel style={{ marginBottom: '1rem', display: 'block' }}>
+              {question.label}
+            </FormLabel>
+            <CheckboxGrid
+              options={question.options || []}
+              gridOptions={question.gridOptions || []}
+              value={(value as { [key: string]: DiagnosenGridEntry }) || {}}
+              onChange={(newValue) => updateState(key, newValue)}
+            />
+          </div>
+        )
+
       default:
         return null
     }
   }
 
+  // Get steps that should be shown in the step progress (filter out hidden gender-specific steps)
+  const getVisibleSteps = () => {
+    return extendedAnamneseSteps.filter((step, idx) => {
+      // Always show overview
+      if (idx === extendedAnamneseSteps.length - 1) return true
+      // Check if step has any visible questions
+      const visibleQuestions = getVisibleQuestions(step.id)
+      return visibleQuestions.length > 0
+    })
+  }
+
   // Render current step
   const renderStep = () => {
-    if (currentStep >= anamneseSteps.length) return null
+    if (currentStep >= extendedAnamneseSteps.length) return null
 
-    const step = anamneseSteps[currentStep]
+    const step = extendedAnamneseSteps[currentStep]
+    const visibleQuestions = getVisibleQuestions(currentStep)
 
     // Overview step (last step)
-    if (currentStep === anamneseSteps.length - 1) {
+    if (currentStep === extendedAnamneseSteps.length - 1) {
       if (isSubmitted) {
         return (
           <SuccessScreen
@@ -274,6 +355,8 @@ const handleSubmit = async () => {
     }
 
     // Regular form step
+    const isHealthStep = step.id >= 2 && step.id !== 8 // Not the diagnosen grid step
+    
     return (
       <StepContent>
         <QuestionTitle>{step.title}</QuestionTitle>
@@ -282,18 +365,20 @@ const handleSubmit = async () => {
         )}
 
         {/* Check if it's a health questions grid or regular form grid */}
-        {step.id >= 2 && step.id <= 4 ? (
+        {isHealthStep ? (
           <HealthQuestionsGrid>
-            {step.questions.map(question => renderFormField(question))}
+            {visibleQuestions.map(question => renderFormField(question))}
           </HealthQuestionsGrid>
         ) : (
-          <FormGrid $columns={step.questions[0]?.columns || 1}>
-            {step.questions.map(question => renderFormField(question))}
+          <FormGrid $columns={visibleQuestions[0]?.columns || 1}>
+            {visibleQuestions.map(question => renderFormField(question))}
           </FormGrid>
         )}
       </StepContent>
     )
   }
+
+  const visibleSteps = getVisibleSteps()
 
   return (
     <Container>
@@ -335,15 +420,15 @@ const handleSubmit = async () => {
                   Fortschritt
                 </h2>
                 <span style={{ fontSize: '1.125rem', color: '#A89454' }}>
-                  Schritt {currentStep + 1} von {anamneseSteps.length}
+                  Schritt {currentStep + 1} von {extendedAnamneseSteps.length}
                 </span>
               </div>
-              <Progress value={((currentStep + 1) / anamneseSteps.length) * 100} />
+              <Progress value={((currentStep + 1) / extendedAnamneseSteps.length) * 100} />
             </div>
 
             {/* Step Progress */}
             <StepProgress
-              steps={anamneseSteps}
+              steps={extendedAnamneseSteps}
               currentStep={currentStep}
               onStepClick={handleStepClick}
               completedSteps={Array.from({ length: maxReachedStep }, (_, i) => i)}
@@ -401,7 +486,7 @@ const handleSubmit = async () => {
                 Zurück
               </BackButton>
 
-              {currentStep === anamneseSteps.length - 1 ? (
+              {currentStep === extendedAnamneseSteps.length - 1 ? (
                 <SubmitButton 
                   onClick={handleSubmit} 
                   disabled={!consentGiven || isEmailSending}

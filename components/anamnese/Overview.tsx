@@ -3,7 +3,8 @@
 import styled from "styled-components"
 import { Edit2, Shield } from "lucide-react"
 import { colors, borderRadius, shadows, transitions } from "@/lib/theme"
-import type { AnamneseState } from "@/lib/types"
+import type { AnamneseState, DiagnosenGridEntry } from "@/lib/types"
+import { extendedAnamneseSteps, ExtendedFormQuestion } from "@/lib/anamneseConfigExtended"
 
 // Styled Components
 const OverviewCard = styled.div`
@@ -187,6 +188,53 @@ interface OverviewProps {
   calculateMaxHeartRate: () => number
 }
 
+// Helper to get value as display string
+function getDisplayValue(state: AnamneseState, questionId: string): string | null {
+  const value = state[questionId as keyof AnamneseState]
+  
+  if (value === undefined || value === null || value === '') {
+    return null
+  }
+  
+  if (Array.isArray(value)) {
+    return value.length > 0 ? value.join(', ') : null
+  }
+  
+  if (typeof value === 'object') {
+    // Handle DiagnosenGrid
+    const diagnosenGrid = value as { [key: string]: DiagnosenGridEntry }
+    const entries = Object.entries(diagnosenGrid)
+      .filter(([, v]) => v.aktuell || v.letzte3Jahre || v.letzte20Jahre)
+      .map(([diagnosis, v]) => {
+        const times = []
+        if (v.aktuell) times.push('aktuell')
+        if (v.letzte3Jahre) times.push('3J')
+        if (v.letzte20Jahre) times.push('20J')
+        return `${diagnosis} (${times.join(', ')})`
+      })
+    return entries.length > 0 ? entries.join('; ') : null
+  }
+  
+  return String(value)
+}
+
+// Check if question should be shown based on conditional visibility
+function shouldShowQuestion(state: AnamneseState, question: ExtendedFormQuestion): boolean {
+  if (!question.showIf) return true
+  
+  const { field, value } = question.showIf
+  const fieldValue = state[field as keyof AnamneseState]
+  
+  if (Array.isArray(value)) {
+    if (Array.isArray(fieldValue)) {
+      return value.some(v => fieldValue.includes(v))
+    }
+    return value.includes(fieldValue as string)
+  }
+  
+  return fieldValue === value
+}
+
 export function Overview({ 
   state, 
   onEditStep, 
@@ -194,6 +242,19 @@ export function Overview({
   onConsentChange,
   calculateMaxHeartRate 
 }: OverviewProps) {
+  // Filter steps that have visible, answered questions
+  const stepsWithAnswers = extendedAnamneseSteps
+    .filter(step => step.questions.length > 0)
+    .map(step => {
+      const visibleQuestions = step.questions.filter(q => {
+        if (!shouldShowQuestion(state, q)) return false
+        const value = getDisplayValue(state, q.id)
+        return value !== null
+      })
+      return { ...step, visibleQuestions }
+    })
+    .filter(step => step.visibleQuestions.length > 0)
+
   return (
     <>
       <OverviewCard>
@@ -201,206 +262,31 @@ export function Overview({
           <h3>Ihre Angaben im Überblick</h3>
         </OverviewHeader>
         <OverviewContent>
-          {/* Basisdaten */}
-          <OverviewSection>
-            <OverviewSectionHeader>
-              <h4>Basisdaten</h4>
-              <EditButton onClick={() => onEditStep(0)}>
-                <Edit2 className="h-4 w-4" />
-                Bearbeiten
-              </EditButton>
-            </OverviewSectionHeader>
-            <OverviewGrid>
-              <OverviewItem>
-                <span className="label">Name:</span>
-                <span className="value">{state.vorname} {state.nachname}</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Geburtsdatum:</span>
-                <span className="value">{state.geburtsdatum}</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Geschlecht:</span>
-                <span className="value">{state.geschlecht}</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Größe:</span>
-                <span className="value">{state.koerpergroesse} cm</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Gewicht:</span>
-                <span className="value">{state.gewicht} kg</span>
-              </OverviewItem>
-            </OverviewGrid>
-          </OverviewSection>
+          {stepsWithAnswers.map(step => (
+            <OverviewSection key={step.id}>
+              <OverviewSectionHeader>
+                <h4>{step.title}</h4>
+                <EditButton onClick={() => onEditStep(step.id)}>
+                  <Edit2 className="h-4 w-4" />
+                  Bearbeiten
+                </EditButton>
+              </OverviewSectionHeader>
+              <OverviewGrid>
+                {step.visibleQuestions.map(question => {
+                  const value = getDisplayValue(state, question.id)
+                  if (!value) return null
+                  return (
+                    <OverviewItem key={question.id}>
+                      <span className="label">{question.label}</span>
+                      <span className="value">{value}</span>
+                    </OverviewItem>
+                  )
+                })}
+              </OverviewGrid>
+            </OverviewSection>
+          ))}
 
-          {/* Kontaktdaten */}
-          <OverviewSection>
-            <OverviewSectionHeader>
-              <h4>Kontaktdaten</h4>
-              <EditButton onClick={() => onEditStep(1)}>
-                <Edit2 className="h-4 w-4" />
-                Bearbeiten
-              </EditButton>
-            </OverviewSectionHeader>
-            <OverviewGrid>
-              {state.strasse && (
-                <OverviewItem>
-                  <span className="label">Adresse:</span>
-                  <span className="value">{state.strasse}, {state.plzOrt}</span>
-                </OverviewItem>
-              )}
-              {state.land && (
-                <OverviewItem>
-                  <span className="label">Land:</span>
-                  <span className="value">{state.land}</span>
-                </OverviewItem>
-              )}
-              {state.email && (
-                <OverviewItem>
-                  <span className="label">E-Mail:</span>
-                  <span className="value">{state.email}</span>
-                </OverviewItem>
-              )}
-              <OverviewItem>
-                <span className="label">Telefon:</span>
-                <span className="value">{state.telefon}</span>
-              </OverviewItem>
-            </OverviewGrid>
-          </OverviewSection>
-
-          {/* Gesundheit 1 */}
-          <OverviewSection>
-            <OverviewSectionHeader>
-              <h4>Gesundheitsdaten (Teil 1)</h4>
-              <EditButton onClick={() => onEditStep(2)}>
-                <Edit2 className="h-4 w-4" />
-                Bearbeiten
-              </EditButton>
-            </OverviewSectionHeader>
-            <OverviewGrid>
-              <OverviewItem>
-                <span className="label">Rauchen:</span>
-                <span className="value">{state.rauchen}</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Hypertonie:</span>
-                <span className="value">{state.hypertonie}</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Schilddrüse:</span>
-                <span className="value">{state.schilddruese}</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Schlafstörungen:</span>
-                <span className="value">{state.schlafstoerungen}</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Diabetes:</span>
-                <span className="value">{state.diabetes}</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Sport:</span>
-                <span className="value">{state.sportlicheAktivitaet}</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">COPD:</span>
-                <span className="value">{state.copd}</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Antidepressiva:</span>
-                <span className="value">{state.antidepressiva}</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Alkohol:</span>
-                <span className="value">{state.alkohol}</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Schichtarbeit:</span>
-                <span className="value">{state.schichtarbeit}</span>
-              </OverviewItem>
-            </OverviewGrid>
-          </OverviewSection>
-
-          {/* Gesundheit 2 */}
-          <OverviewSection>
-            <OverviewSectionHeader>
-              <h4>Gesundheitsdaten (Teil 2)</h4>
-              <EditButton onClick={() => onEditStep(3)}>
-                <Edit2 className="h-4 w-4" />
-                Bearbeiten
-              </EditButton>
-            </OverviewSectionHeader>
-            <OverviewGrid>
-              <OverviewItem>
-                <span className="label">Allergien:</span>
-                <span className="value">{state.allergien.join(", ") || "-"}</span>
-              </OverviewItem>
-              {state.ernaehrung.length > 0 && (
-                <OverviewItem>
-                  <span className="label">Ernährung:</span>
-                  <span className="value">{state.ernaehrung.join(", ")}</span>
-                </OverviewItem>
-              )}
-              <OverviewItem>
-                <span className="label">Krebstherapie:</span>
-                <span className="value">{state.krebstherapie}</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Immunsystem:</span>
-                <span className="value">{state.immunsystem}</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Depressionen:</span>
-                <span className="value">{state.depressionen}</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Gelenkschmerzen:</span>
-                <span className="value">{state.gelenkschmerzen}</span>
-              </OverviewItem>
-              {state.schmerzen && (
-                <OverviewItem>
-                  <span className="label">Schmerzen:</span>
-                  <span className="value">{state.schmerzen}</span>
-                </OverviewItem>
-              )}
-            </OverviewGrid>
-          </OverviewSection>
-
-          {/* Gesundheit 3 */}
-          <OverviewSection>
-            <OverviewSectionHeader>
-              <h4>Lebensstil</h4>
-              <EditButton onClick={() => onEditStep(4)}>
-                <Edit2 className="h-4 w-4" />
-                Bearbeiten
-              </EditButton>
-            </OverviewSectionHeader>
-            <OverviewGrid>
-              <OverviewItem>
-                <span className="label">Hautprobleme:</span>
-                <span className="value">{state.hautprobleme}</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Passivrauchen:</span>
-                <span className="value">{state.passivrauchen}</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Weniger als 1,5L Wasser:</span>
-                <span className="value">{state.wasserkonsum}</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Gesüßte Getränke:</span>
-                <span className="value">{state.gesuessteGetraenke}</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Erhöhter Zuckerkonsum:</span>
-                <span className="value">{state.zuckerkonsum}</span>
-              </OverviewItem>
-            </OverviewGrid>
-          </OverviewSection>
-
-          {/* Max. Herzfrequenz */}
+          {/* Berechnete Werte */}
           <OverviewSection>
             <OverviewSectionHeader>
               <h4>Berechnete Werte</h4>
