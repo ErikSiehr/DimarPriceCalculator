@@ -466,6 +466,46 @@ export function LebensgeschichteFormular() {
 
             {/* Step Content */}
             {renderStep()}
+            
+            {/* Success Message */}
+            {isSubmitted && emailSent && (
+              <StepContent>
+                <div style={{ textAlign: 'center', padding: '2rem', color: '#4CAF50' }}>
+                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✓</div>
+                  <h2 style={{ color: '#3A3429', marginBottom: '0.5rem' }}>Formular erfolgreich eingereicht!</h2>
+                  <p style={{ color: '#A89454' }}>Ihre Lebensgeschichte wurde an {process.env.NEXT_PUBLIC_RECIPIENT_EMAIL || 'die Praxis'} gesendet.</p>
+                  <p style={{ fontSize: '0.875rem', marginTop: '1rem', color: '#999' }}>Vielen Dank für Ihre Teilnahme!</p>
+                </div>
+              </StepContent>
+            )}
+            
+            {/* Error Message */}
+            {isSubmitted && emailError && (
+              <StepContent>
+                <div style={{ textAlign: 'center', padding: '2rem', color: '#F44336' }}>
+                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✕</div>
+                  <h2 style={{ color: '#3A3429', marginBottom: '0.5rem' }}>Fehler beim Übermitteln</h2>
+                  <p style={{ color: '#A89454' }}>{emailError}</p>
+                  <button
+                    onClick={() => {
+                      setIsSubmitted(false)
+                      setEmailError(null)
+                    }}
+                    style={{
+                      marginTop: '1rem',
+                      padding: '0.5rem 1rem',
+                      backgroundColor: '#A89454',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '0.5rem',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Erneut versuchen
+                  </button>
+                </div>
+              </StepContent>
+            )}
           </CardContentWrapper>
 
           {/* Navigation - always visible unless submitted */}
@@ -477,9 +517,22 @@ export function LebensgeschichteFormular() {
               </BackButton>
               
               {currentStep === lebensgeschichteSteps.length - 1 ? (
-                <SubmitButton onClick={handleSubmit} disabled={!consentGiven}>
-                  <Send className="h-5 w-5" />
-                  Formular übermitteln
+                <SubmitButton 
+                  onClick={handleSubmit} 
+                  disabled={!consentGiven || isEmailSending}
+                  style={{ opacity: isEmailSending ? 0.7 : 1 }}
+                >
+                  {isEmailSending ? (
+                    <>
+                      <span style={{ display: 'inline-block', marginRight: '0.5rem' }}>⏳</span>
+                      Wird gesendet...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-5 w-5" />
+                      Formular übermitteln
+                    </>
+                  )}
                 </SubmitButton>
               ) : (
                 <NextButton 
