@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress'
 // Import config and types
 import { AnamneseState, initialAnamneseState } from '@/lib/types'
 import { anamneseSteps, anamneseValidationRules } from '@/lib/anamneseConfig'
-import { downloadAnamnePDF } from '@/lib/pdfGenerator'
+import { downloadAnamnePDF, generateAnamnePDFBase64 } from '@/lib/pdfGenerator'
 
 // Import components
 import {
@@ -51,6 +51,9 @@ export function AnamneseFormular() {
   const [state, setState] = useState<AnamneseState>(initialAnamneseState)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [consentGiven, setConsentGiven] = useState(false)
+  const [isEmailSending, setIsEmailSending] = useState(false)
+  const [emailSent, setEmailSent] = useState(false)
+  const [emailError, setEmailError] = useState<string | null>(null)
 
   const updateState = (key: keyof AnamneseState, value: string | string[]) => {
     setState(prev => ({ ...prev, [key]: value }))
@@ -99,9 +102,43 @@ export function AnamneseFormular() {
     setCurrentStep(step)
   }
 
-  const handleSubmit = () => {
+const handleSubmit = async () => {
     if (consentGiven) {
-      setIsSubmitted(true)
+      setIsEmailSending(true)
+      setEmailError(null)
+      
+      try {
+        // Generate PDF base64 for email
+        const pdfBase64 = generateAnamnePDFBase64(state, calculateMaxHeartRate())
+        const patientName = `${state.vorname} ${state.nachname}`
+        
+        // Send email with PDF attachment
+        const response = await fetch('/api/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            pdfBase64,
+            patientName,
+            formType: 'anamnese',
+          }),
+        })
+        
+        const result = await response.json()
+        
+        if (!result.success) {
+          setEmailError(result.error || 'E-Mail konnte nicht gesendet werden')
+        } else {
+          setEmailSent(true)
+        }
+      } catch (error) {
+        console.error('Error sending email:', error)
+        setEmailError('E-Mail konnte nicht gesendet werden')
+      } finally {
+        setIsEmailSending(false)
+        setIsSubmitted(true)
+      }
     }
   }
 

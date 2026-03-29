@@ -15,7 +15,7 @@ import {
   calculateAge,
   PersonalInfo,
 } from '@/lib/lebensgeschichteConfig'
-import { downloadLebensgeschichtePDF } from '@/lib/pdfGeneratorLebensgeschichte'
+import { downloadLebensgeschichtePDF, generateLebensgeschichtePDFBase64 } from '@/lib/pdfGeneratorLebensgeschichte'
 import { Timeline } from './Timeline'
 
 // Reuse Anamnese components for consistent styling
@@ -68,6 +68,8 @@ export function LebensgeschichteFormular() {
   const [consentGiven, setConsentGiven] = useState(false)
   const [sendEmail, setSendEmail] = useState('')
   const [emailSent, setEmailSent] = useState(false)
+  const [isEmailSending, setIsEmailSending] = useState(false)
+  const [emailError, setEmailError] = useState<string | null>(null)
 
   const handleNext = () => {
     // Validate personal info step before proceeding
@@ -91,9 +93,44 @@ export function LebensgeschichteFormular() {
     setCurrentStep(step)
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (consentGiven) {
-      setIsSubmitted(true)
+      setIsEmailSending(true)
+      setEmailError(null)
+      
+      try {
+        // Generate PDF base64 for email
+        const { pdfBase64, visualizationBase64 } = generateLebensgeschichtePDFBase64(state)
+        const patientName = `${state.personalInfo.vorname} ${state.personalInfo.nachname}`
+        
+        // Send email with PDF attachment
+        const response = await fetch('/api/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            pdfBase64,
+            visualizationPdfBase64: visualizationBase64,
+            patientName,
+            formType: 'lebensgeschichte',
+          }),
+        })
+        
+        const result = await response.json()
+        
+        if (!result.success) {
+          setEmailError(result.error || 'E-Mail konnte nicht gesendet werden')
+        } else {
+          setEmailSent(true)
+        }
+      } catch (error) {
+        console.error('Error sending email:', error)
+        setEmailError('E-Mail konnte nicht gesendet werden')
+      } finally {
+        setIsEmailSending(false)
+        setIsSubmitted(true)
+      }
     }
   }
 

@@ -11,7 +11,7 @@ const categoryColors: Record<string, { r: number; g: number; b: number }> = {
   ereignisse: { r: 34, g: 139, b: 34 },       // Forest green
 }
 
-export function downloadVisualizationPDF(state: LebensgeschichteState) {
+export function generateVisualizationPDF(state: LebensgeschichteState, returnBase64: boolean): string {
   // Use landscape orientation for wide matrix
   const doc = new jsPDF('landscape')
   const pageWidth = doc.internal.pageSize.getWidth()
@@ -33,7 +33,6 @@ export function downloadVisualizationPDF(state: LebensgeschichteState) {
   const topMargin = 35
   const cellWidth = (pageWidth - leftMargin - 10) / filteredAgeRanges.length
   const cellHeight = 12
-  const categoryLabelWidth = 40
   const headerHeight = 15
   
   // Title
@@ -166,7 +165,18 @@ export function downloadVisualizationPDF(state: LebensgeschichteState) {
   const today = new Date().toLocaleDateString('de-DE')
   doc.text(`Erstellt am: ${today}`, pageWidth / 2, pageHeight - 10, { align: 'center' })
   
-  // Download
-  const fileName = `Lebensgeschichte_Visualisierung_${state.personalInfo.vorname}_${state.personalInfo.nachname}_${today.replace(/\./g, '-')}.pdf`
-  doc.save(fileName)
+  if (returnBase64) {
+    // Return base64 string (without data URI prefix for email attachment)
+    return doc.output('datauristring').split(',')[1]
+  } else {
+    // Download
+    const fileName = `Lebensgeschichte_Visualisierung_${state.personalInfo.vorname}_${state.personalInfo.nachname}_${today.replace(/\./g, '-')}.pdf`
+    doc.save(fileName)
+    return ''
+  }
+}
+
+// Legacy function for backward compatibility
+export function downloadVisualizationPDF(state: LebensgeschichteState): void {
+  generateVisualizationPDF(state, false)
 }

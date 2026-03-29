@@ -1,18 +1,29 @@
 import { jsPDF } from 'jspdf'
 import { lebensgeschichteCategories, ageRanges, LebensgeschichteState, calculateAge, TimelineEntry } from '@/lib/lebensgeschichteConfig'
-import { downloadVisualizationPDF } from './pdfVisualizationLebensgeschichte'
+import { generateVisualizationPDF } from './pdfVisualizationLebensgeschichte'
 
-export function downloadLebensgeschichtePDF(state: LebensgeschichteState) {
-  // Download both PDFs: the detailed text document and the visualization matrix
-  downloadDetailedPDF(state)
+// Generate PDF and return base64 for email, plus download
+export function downloadLebensgeschichtePDF(state: LebensgeschichteState): { pdfBase64: string; visualizationBase64: string } {
+  const pdfBase64 = generateDetailedPDF(state, true)
+  const visualizationBase64 = generateVisualizationPDF(state, true)
   
-  // Small delay to prevent browser blocking multiple downloads
+  // Also download both files
+  generateDetailedPDF(state, false)
   setTimeout(() => {
-    downloadVisualizationPDF(state)
+    generateVisualizationPDF(state, false)
   }, 500)
+  
+  return { pdfBase64, visualizationBase64 }
 }
 
-function downloadDetailedPDF(state: LebensgeschichteState) {
+// Generate only base64 without downloading (for email only)
+export function generateLebensgeschichtePDFBase64(state: LebensgeschichteState): { pdfBase64: string; visualizationBase64: string } {
+  const pdfBase64 = generateDetailedPDF(state, true)
+  const visualizationBase64 = generateVisualizationPDF(state, true)
+  return { pdfBase64, visualizationBase64 }
+}
+
+function generateDetailedPDF(state: LebensgeschichteState, returnBase64: boolean): string {
   const doc = new jsPDF()
   const pageWidth = doc.internal.pageSize.getWidth()
   let yPos = 20
@@ -173,7 +184,13 @@ function downloadDetailedPDF(state: LebensgeschichteState) {
   yPos += lineHeight
   doc.text('Die Daten werden vertraulich behandelt und nur für die Dauer der Zusammenarbeit gespeichert.', leftMargin, yPos)
 
-  // Download with person's name
-  const fileName = `Lebensgeschichte_${state.personalInfo.vorname}_${state.personalInfo.nachname}_${today.replace(/\./g, '-')}.pdf`
-  doc.save(fileName)
+  if (returnBase64) {
+    // Return base64 string (without data URI prefix for email attachment)
+    return doc.output('datauristring').split(',')[1]
+  } else {
+    // Download with person's name
+    const fileName = `Lebensgeschichte_${state.personalInfo.vorname}_${state.personalInfo.nachname}_${today.replace(/\./g, '-')}.pdf`
+    doc.save(fileName)
+    return ''
+  }
 }

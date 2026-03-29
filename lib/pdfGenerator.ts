@@ -148,3 +148,9 @@ export function downloadAnamnePDF(state: AnamneseState, maxHeartRate: number): v
   const filename = `Anamnese_${state.vorname}_${state.nachname}_${new Date().toISOString().split('T')[0]}.pdf`
   doc.save(filename)
 }
+
+// Generate base64 for email attachment
+export function generateAnamnePDFBase64(state: AnamneseState, maxHeartRate: number): string {
+  const doc = generateAnamnePDF(state, maxHeartRate)
+  return doc.output('datauristring').split(',')[1]
+}
