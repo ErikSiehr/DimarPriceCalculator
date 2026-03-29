@@ -84,12 +84,16 @@ const OverviewGrid = styled.div`
 
 const OverviewItem = styled.div`
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   font-size: 0.875rem;
   padding: 0.25rem 0;
   
   .label {
     color: ${colors.accent.DEFAULT};
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.1rem;
   }
   
   .value {
@@ -396,34 +400,16 @@ export function Overview({
             </OverviewGrid>
           </OverviewSection>
 
-          {/* Körpermaße */}
+          {/* Max. Herzfrequenz */}
           <OverviewSection>
             <OverviewSectionHeader>
-              <h4>Körpermaße</h4>
-              <EditButton onClick={() => onEditStep(5)}>
-                <Edit2 className="h-4 w-4" />
-                Bearbeiten
-              </EditButton>
+              <h4>Berechnete Werte</h4>
             </OverviewSectionHeader>
             <OverviewGrid>
               <OverviewItem>
-                <span className="label">Nackenumfang:</span>
-                <span className="value">{state.nackenumfang} cm</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Hüftumfang:</span>
-                <span className="value">{state.hueftumfang} cm</span>
-              </OverviewItem>
-              <OverviewItem>
-                <span className="label">Max. Herzfrequenz:</span>
+                <span className="label">Max. Herzfrequenz</span>
                 <span className="value">{calculateMaxHeartRate()} bpm</span>
               </OverviewItem>
-              {state.blutgruppe && (
-                <OverviewItem>
-                  <span className="label">Blutgruppe:</span>
-                  <span className="value">{state.blutgruppe}</span>
-                </OverviewItem>
-              )}
             </OverviewGrid>
           </OverviewSection>
         </OverviewContent>

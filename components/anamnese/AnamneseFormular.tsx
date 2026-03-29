@@ -265,6 +265,7 @@ const handleSubmit = async () => {
       return (
         <Overview
           state={state}
+          onEditStep={handleStepClick}
           consentGiven={consentGiven}
           onConsentChange={setConsentGiven}
           calculateMaxHeartRate={calculateMaxHeartRate}

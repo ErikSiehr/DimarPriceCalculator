@@ -102,17 +102,6 @@ export const anamneseSteps: StepDefinition[] = [
   },
   {
     id: 5,
-    label: 'Körpermaße',
-    title: 'Körpermaße',
-    description: 'Zusätzliche Körpermessungen',
-    questions: [
-      { id: 'nackenumfang', label: 'Nackenumfang (cm)', type: 'number', placeholder: '38', required: true, columns: 1 },
-      { id: 'hueftumfang', label: 'Hüftumfang (cm)', type: 'number', placeholder: '95', required: true, columns: 1 },
-      { id: 'blutgruppe', label: 'Blutgruppe (optional)', type: 'select', options: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', '0+', '0-', 'Unbekannt'], required: false, columns: 1 },
-    ],
-  },
-  {
-    id: 6,
     label: 'Übersicht',
     title: 'Übersicht',
     description: 'Überprüfen Sie Ihre Eingaben',
@@ -127,6 +116,5 @@ export const anamneseValidationRules: ValidationRules = {
   2: ['rauchen', 'hypertonie', 'schilddruese', 'schlafstoerungen', 'diabetes', 'sportlicheAktivitaet', 'copd', 'antidepressiva', 'alkohol', 'schichtarbeit'],
   3: ['allergien', 'krebstherapie', 'immunsystem', 'depressionen', 'gelenkschmerzen'],
   4: ['hautprobleme', 'passivrauchen', 'wasserkonsum', 'gesuessteGetraenke', 'zuckerkonsum'],
-  5: ['nackenumfang', 'hueftumfang'],
-  6: [],
+  5: [],
 }

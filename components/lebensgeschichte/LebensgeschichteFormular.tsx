@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight, Send, Download, Mail, Shield } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Edit2, Send, Download, Mail, Shield } from 'lucide-react'
 import { Progress } from '@/components/ui/progress'
 
 // Imports
@@ -278,6 +278,14 @@ export function LebensgeschichteFormular() {
         )
       }
 
+      // Map category id to step index for navigation
+      const categoryStepIndex: Record<string, number> = {}
+      lebensgeschichteSteps.forEach((step, idx) => {
+        if (step.categoryId !== 'personal' && step.categoryId !== 'overview') {
+          categoryStepIndex[step.categoryId] = idx
+        }
+      })
+
       return (
         <StepContent>
           <QuestionTitle>Übersicht</QuestionTitle>
@@ -292,20 +300,44 @@ export function LebensgeschichteFormular() {
               marginBottom: '1.5rem',
             }}
           >
-            <h4 style={{ color: '#3A3429', marginBottom: '0.75rem', fontWeight: '600' }}>
-              Persönliche Daten
-            </h4>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem', fontSize: '0.875rem' }}>
-              <p><strong style={{ color: '#A89454' }}>Name:</strong> <span style={{ color: '#3A3429' }}>{state.personalInfo.vorname} {state.personalInfo.nachname}</span></p>
-              <p><strong style={{ color: '#A89454' }}>Geburtsdatum:</strong> <span style={{ color: '#3A3429' }}>{state.personalInfo.geburtsdatum}</span></p>
-              <p><strong style={{ color: '#A89454' }}>Alter:</strong> <span style={{ color: '#3A3429' }}>{currentAge} Jahre</span></p>
-              <p><strong style={{ color: '#A89454' }}>Geschlecht:</strong> <span style={{ color: '#3A3429' }}>{state.personalInfo.geschlecht}</span></p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <h4 style={{ color: '#3A3429', fontWeight: '600' }}>Persönliche Daten</h4>
+              <button
+                onClick={() => handleStepClick(0)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '0.25rem',
+                  padding: '0.25rem 0.5rem', fontSize: '0.875rem',
+                  color: '#A89454', background: 'transparent', border: 'none', cursor: 'pointer',
+                }}
+              >
+                <Edit2 className="h-4 w-4" />
+                Bearbeiten
+              </button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem', fontSize: '0.875rem' }}>
+              <div>
+                <div style={{ color: '#A89454', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.03em', marginBottom: '0.1rem' }}>Name</div>
+                <div style={{ color: '#3A3429', fontWeight: '500' }}>{state.personalInfo.vorname} {state.personalInfo.nachname}</div>
+              </div>
+              <div>
+                <div style={{ color: '#A89454', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.03em', marginBottom: '0.1rem' }}>Geburtsdatum</div>
+                <div style={{ color: '#3A3429', fontWeight: '500' }}>{state.personalInfo.geburtsdatum}</div>
+              </div>
+              <div>
+                <div style={{ color: '#A89454', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.03em', marginBottom: '0.1rem' }}>Alter</div>
+                <div style={{ color: '#3A3429', fontWeight: '500' }}>{currentAge} Jahre</div>
+              </div>
+              <div>
+                <div style={{ color: '#A89454', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.03em', marginBottom: '0.1rem' }}>Geschlecht</div>
+                <div style={{ color: '#3A3429', fontWeight: '500' }}>{state.personalInfo.geschlecht}</div>
+              </div>
             </div>
           </div>
           
           <div style={{ display: 'grid', gap: '1.5rem' }}>
             {lebensgeschichteCategories.map(category => {
               const entries = state[category.id as keyof LebensgeschichteState] as TimelineEntry[]
+              const stepIdx = categoryStepIndex[category.id]
               return (
                 <div
                   key={category.id}
@@ -316,18 +348,29 @@ export function LebensgeschichteFormular() {
                     backgroundColor: 'rgba(168, 148, 84, 0.05)',
                   }}
                 >
-                  <h4 style={{ color: category.color, marginBottom: '0.5rem', fontWeight: '600' }}>
-                    {category.label}
-                  </h4>
-                  <p style={{ fontSize: '0.875rem', color: '#A89454', marginBottom: '1rem' }}>
-                    {entries.length} Einträge
-                  </p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                    <h4 style={{ color: category.color, fontWeight: '600' }}>
+                      {category.label}
+                    </h4>
+                    <button
+                      onClick={() => handleStepClick(stepIdx)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '0.25rem',
+                        padding: '0.25rem 0.5rem', fontSize: '0.875rem',
+                        color: '#A89454', background: 'transparent', border: 'none', cursor: 'pointer',
+                      }}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                      Bearbeiten
+                    </button>
+                  </div>
                   {entries.length > 0 ? (
-                    <ul style={{ marginLeft: '1rem', fontSize: '0.875rem' }}>
+                    <ul style={{ marginLeft: '1rem', fontSize: '0.875rem', listStyle: 'disc' }}>
                       {entries.map((entry, idx) => (
-                        <li key={idx} style={{ marginBottom: '0.5rem', color: '#3A3429' }}>
-                          <strong>Alter: {entry.ageRangeId}</strong> - {entry.text.substring(0, 80)}
-                          {entry.text.length > 80 ? '...' : ''}
+                        <li key={idx} style={{ marginBottom: '0.4rem', color: '#3A3429' }}>
+                          <strong style={{ color: category.color }}>{entry.ageRangeId} Jahre</strong>
+                          {' — '}
+                          {entry.text.substring(0, 100)}{entry.text.length > 100 ? '...' : ''}
                         </li>
                       ))}
                     </ul>
