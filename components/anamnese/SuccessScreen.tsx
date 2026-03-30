@@ -114,18 +114,37 @@ const EmailSentCard = styled.div`
   }
 `
 
+const TherapistButton = styled(PdfButton)`
+  background-color: ${colors.primary.DEFAULT};
+  color: ${colors.background.card};
+  
+  &:hover:not(:disabled) {
+    opacity: 0.85;
+  }
+`
+
+const TherapistNote = styled.p`
+  font-size: 0.75rem !important;
+  color: ${colors.accent.muted} !important;
+  margin-top: 0.5rem !important;
+  margin-bottom: 0 !important;
+  font-style: italic;
+`
+
 // Component Props
 interface SuccessScreenProps {
+  title?: string
+  description?: string
   onDownloadPdf: () => void
+  onDownloadTherapistPdf?: () => void
 }
 
-export function SuccessScreen({ onDownloadPdf }: SuccessScreenProps) {
+export function SuccessScreen({ title, description, onDownloadPdf, onDownloadTherapistPdf }: SuccessScreenProps) {
   const [email, setEmail] = useState("")
   const [emailSent, setEmailSent] = useState(false)
   
   const handleSendEmail = () => {
     if (email) {
-      // Here you would implement the actual email sending logic
       setEmailSent(true)
     }
   }
@@ -136,8 +155,8 @@ export function SuccessScreen({ onDownloadPdf }: SuccessScreenProps) {
         <div className="icon">
           <Check className="h-10 w-10 text-white" />
         </div>
-        <h2>Formular erfolgreich übermittelt!</h2>
-        <p>Vielen Dank für Ihre Angaben. Ihre Daten wurden erfolgreich gespeichert und Ihre PDF wurde erstellt.</p>
+        <h2>{title ?? 'Formular erfolgreich übermittelt!'}</h2>
+        <p>{description ?? 'Vielen Dank für Ihre Angaben. Ihre Daten wurden erfolgreich gespeichert und Ihre PDF wurde erstellt.'}</p>
       </SuccessMessage>
       
       <PdfSection>
@@ -152,9 +171,21 @@ export function SuccessScreen({ onDownloadPdf }: SuccessScreenProps) {
         <ButtonGroup>
           <PdfButton onClick={onDownloadPdf}>
             <Download className="h-5 w-5" />
-            PDF herunterladen
+            Kunden-PDF herunterladen
           </PdfButton>
+          {onDownloadTherapistPdf && (
+            <TherapistButton onClick={onDownloadTherapistPdf}>
+              <Download className="h-5 w-5" />
+              Therapeuten-PDF herunterladen
+            </TherapistButton>
+          )}
         </ButtonGroup>
+
+        {onDownloadTherapistPdf && (
+          <TherapistNote>
+            Therapeuten-PDF enthält beide Abschnitte (Vieva + IASA) – nur zu Testzwecken sichtbar.
+          </TherapistNote>
+        )}
         
         <EmailSection>
           {!emailSent ? (

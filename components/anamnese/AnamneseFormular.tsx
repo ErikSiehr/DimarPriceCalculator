@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress'
 // Import config and types
 import { AnamneseState, initialAnamneseState, DiagnosenGridEntry } from '@/lib/types'
 import { extendedAnamneseSteps, extendedValidationRules, ExtendedFormQuestion } from '@/lib/anamneseConfigExtended'
-import { downloadAnamnePDF, generateTherapistPDFBase64 } from '@/lib/pdfGenerator'
+import { downloadAnamnePDF, downloadTherapistPDF, generateTherapistPDFBase64 } from '@/lib/pdfGenerator'
 
 // Import components
 import {
@@ -196,8 +196,12 @@ export function AnamneseFormular() {
     }
   }
 
-  const handleDownloadPdf = () => {
+const handleDownloadPdf = () => {
     downloadAnamnePDF(state, calculateMaxHeartRate())
+  }
+
+  const handleDownloadTherapistPdf = () => {
+    downloadTherapistPDF(state, calculateMaxHeartRate())
   }
 
   // Render form field based on config type
@@ -335,11 +339,12 @@ export function AnamneseFormular() {
     if (currentStep === extendedAnamneseSteps.length - 1) {
       if (isSubmitted) {
         return (
-          <SuccessScreen
-            title="Danke für Ihre Eingaben!"
-            description="Ihr Anamnese-Formular wurde erfolgreich übermittelt."
-            onDownloadPdf={handleDownloadPdf}
-          />
+<SuccessScreen
+  title="Danke für Ihre Eingaben!"
+  description="Ihr Anamnese-Formular wurde erfolgreich übermittelt."
+  onDownloadPdf={handleDownloadPdf}
+  onDownloadTherapistPdf={handleDownloadTherapistPdf}
+  />
         )
       }
 
