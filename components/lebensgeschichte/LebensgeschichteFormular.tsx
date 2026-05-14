@@ -52,6 +52,7 @@ import {
 
 // Progress indicator reused
 import { StepProgress } from '@/components/anamnese'
+import { consumeToken } from '@/hooks/useFormToken'
 
 interface LebensgeschichteOverviewItem {
   categoryId: string
@@ -93,17 +94,15 @@ export function LebensgeschichteFormular() {
     setCurrentStep(step)
   }
 
-  const handleSubmit = async () => {
+const handleSubmit = async () => {
     if (consentGiven) {
       setIsEmailSending(true)
       setEmailError(null)
       
       try {
-        // Generate PDF base64 for email
         const { pdfBase64, visualizationBase64 } = generateLebensgeschichtePDFBase64(state)
         const patientName = `${state.personalInfo.vorname} ${state.personalInfo.nachname}`
         
-        // Send email with PDF attachment
         const response = await fetch('/api/send-email', {
           method: 'POST',
           headers: {
@@ -123,6 +122,7 @@ export function LebensgeschichteFormular() {
           setEmailError(result.error || 'E-Mail konnte nicht gesendet werden')
         } else {
           setEmailSent(true)
+          await consumeToken() // ← Token verbrauchen nach erfolgreichem Versand
         }
       } catch (error) {
         console.error('Error sending email:', error)
@@ -267,14 +267,10 @@ export function LebensgeschichteFormular() {
       if (isSubmitted) {
         return (
           <SuccessScreen
-            title="Danke für Ihre Eingaben!"
-            description="Ihre Lebensgeschichte wurde erfolgreich erfasst."
-            onDownloadPdf={handleDownloadPdf}
-            onSendEmail={handleSendEmail}
-            emailSent={emailSent}
-            sendEmail={sendEmail}
-            setSendEmail={setSendEmail}
-          />
+  title="Danke für Ihre Eingaben!"
+  description="Ihre Lebensgeschichte wurde erfolgreich erfasst."
+  onDownloadPdf={handleDownloadPdf}
+/>
         )
       }
 

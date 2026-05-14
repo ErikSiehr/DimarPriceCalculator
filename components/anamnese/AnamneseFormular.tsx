@@ -8,6 +8,8 @@ import { Progress } from '@/components/ui/progress'
 import { AnamneseState, initialAnamneseState, DiagnosenGridEntry } from '@/lib/types'
 import { extendedAnamneseSteps, extendedValidationRules, ExtendedFormQuestion } from '@/lib/anamneseConfigExtended'
 import { downloadAnamnePDF, downloadTherapistPDF, generateTherapistPDFBase64 } from '@/lib/pdfGenerator'
+import { consumeToken } from '@/hooks/useFormToken'
+
 
 // Import components
 import {
@@ -162,11 +164,9 @@ export function AnamneseFormular() {
       setEmailError(null)
       
       try {
-        // Generate THERAPIST PDF base64 for email (with Vieva + IASA sections)
         const pdfBase64 = generateTherapistPDFBase64(state, calculateMaxHeartRate())
         const patientName = `${state.vorname} ${state.nachname}`
         
-        // Send email with PDF attachment
         const response = await fetch('/api/send-email', {
           method: 'POST',
           headers: {
@@ -185,6 +185,7 @@ export function AnamneseFormular() {
           setEmailError(result.error || 'E-Mail konnte nicht gesendet werden')
         } else {
           setEmailSent(true)
+          await consumeToken() // ← Token verbrauchen nach erfolgreichem Versand
         }
       } catch (error) {
         console.error('Error sending email:', error)
