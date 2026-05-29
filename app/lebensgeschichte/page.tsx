@@ -1,5 +1,5 @@
-import { LebensgeschichteFormular } from '@/components/lebensgeschichte/LebensgeschichteFormular'
+import { TokenGate } from "@/components/TokenGate";
 
 export default function LebensgeschichtePage() {
-  return <LebensgeschichteFormular />
+  return <TokenGate />;
 }
