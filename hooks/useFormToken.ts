@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 
 // WordPress-URL
-const WP_API_URL = 'https://lightskyblue-weasel-716136.hostingersite.com/wp-json/vieva/v1'
+const WP_API_URL = 'https://dermentor.ch/wp-json/vieva/v1'
 
 export type TokenStatus = 'loading' | 'valid' | 'invalid' | 'used' | 'expired' | 'missing'
 
